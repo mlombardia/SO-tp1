@@ -91,11 +91,13 @@ int main(int argc, char *argv[])
                 perror("sprintf()");
                 exit(EXIT_FAILURE);
             };
+            printf("slave:%d\n", getpid());
             if (execl("./slave", "./slave", buff, NULL) < 0)
             {
                 perror("exec()");
                 exit(EXIT_FAILURE);
             }
+            printf("slave:%d\n", getpid());
         }
         //PARENT CODE
         if (close(write_to_slave_fds[i][0]) == ERROR)
@@ -131,7 +133,7 @@ int main(int argc, char *argv[])
                 strcpy(buff, file);
                 buff[len] = '\0';
 
-                // printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
+                printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
 
                 if (write(write_to_slave_fds[i][1], file, len + 1) == ERROR)
                 {
@@ -140,8 +142,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-    } //END FIRST FILE DISPATCH
-
+    }
     //PROCESS FILES
     while (processed_files < file_qty)
     {
@@ -172,7 +173,8 @@ int main(int argc, char *argv[])
             int fd = read_from_slave_fds[i][0];
             if (FD_ISSET(fd, &read_fds_set))
             {
-
+                printf("fd ready: %d\n", fd);
+                processed_files++;
                 //RESULT FROM SLAVE i IS READY TO BE READ
                 char result[RESULT_SIZE];
 
@@ -183,14 +185,8 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
                 printf("result: %s\n", result);
-            }
-        }
 
-        for (int i = 0; i < slave_qty && processed_files < file_qty; i++)
-        {
-            for (int j = 0; j < FILES_PER_PROCESS; j++)
-            {
-                char *file = filePaths[processed_files++];
+                char *file = filePaths[processed_files];
 
                 if (file != NULL)
                 {
@@ -199,7 +195,7 @@ int main(int argc, char *argv[])
                     strcpy(buff, file);
                     buff[len] = '\0';
 
-                    //printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
+                    printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
 
                     if (write(write_to_slave_fds[i][1], file, len + 1) == ERROR)
                     {
@@ -209,7 +205,8 @@ int main(int argc, char *argv[])
                 }
             }
         }
-    } //END PROCESS FILES
+        //END PROCESS FILES
+    }
 
     //CLOSE PIPES
     for (int i = 0; i < slave_qty; i++)
