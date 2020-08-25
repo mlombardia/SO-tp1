@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
     int file_qty = argc - 1;
     //CALCULATE SLAVE
     int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / FILES_PER_PROCESS);
-    printf("slave_qty = %d\n", slave_qty);
 
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
