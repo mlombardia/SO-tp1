@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
                 strcpy(buff, file);
                 buff[len] = '\0';
 
-                printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
+                // printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", processed_files, file, i);
 
                 if (write(write_to_slave_fds[i][1], file, len + 1) == ERROR)
                 {
