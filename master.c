@@ -1,10 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "master.h"
 
 #define SLAVE_CANT_PORCENTAGE 10
 #define FILES_PER_PROCESS 1
@@ -15,6 +9,13 @@
 int main(int argc, char *argv[])
 {
 
+    //SHARED-MEMORY 
+    void * shm_ptr = create_shared_memory();
+    shm_info mem_info = initialize_shared_memory(shm_ptr);
+
+    //----------------------------------------------------------
+
+    //IPC MASTER-SLAVE
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <pathname>\n", argv[0]);
@@ -224,5 +225,9 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     }
+
+    //FOR SHM 
+    //send_more_files(total_files_number, pipes, shm_ptr, mem_info, files);
+    //shutdown_shm(mem_info, shm_ptr) --> podriamos cerrar pipes con esto tmb
     return 0;
 }
