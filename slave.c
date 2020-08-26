@@ -19,20 +19,13 @@ int main(int argc, char *argv[])
         int len = strlen(filePath);
         char buff[100];
         sprintf(buff, "%s length: %d\n", filePath, len);
+        sleep(3);
         if (write(1, buff, 100) == -1)
         {
             perror("write()");
             exit(EXIT_FAILURE);
         }
     }
-    // char *line = NULL;
-    // size_t linecap = 0;
-    // ssize_t linelen;
-    // int linecount = 0;
-    // while ((linelen = getline(&line, &linecap, stdin)) > 0) {
-    //     linecount++;
-    //     printf("Line %d: ", linecount);
-    //     fwrite(line, linelen, 1, stdout);
-    // }
+
     return 0;
 }
