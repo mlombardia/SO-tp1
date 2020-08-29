@@ -1,34 +1,144 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#define SLAVE_CANT_PORCENTAGE 10
-#define FILES_PER_PROCESS 1
-#define RESULT_SIZE 128
-#define ERROR -1
-#define max(x, y) ((x) > (y) ? (x) : (y))
+#include "master.h"
 
 int main(int argc, char *argv[])
 {
-
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <pathname>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
+    //INIT SHARED MEMORY
+
+    //FILE PATHS POINTER
+    char **file_paths = argv + 1;
+
+    //FILES QUANTITY
     int file_qty = argc - 1;
     printf("FILE CANT: %d\n", file_qty);
-    //CALCULATE SLAVE
+
+    //CALCULATE SLAVE QUANTITY
     int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / FILES_PER_PROCESS);
 
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
     int read_from_slave_fds[slave_qty][2];
+
+    //CREATE SLAVES AND INITIALIZE PIPES
+    create_slaves(slave_qty, read_from_slave_fds, write_to_slave_fds);
+
+    //SEND FILES TO SLAVES
+    send_files_to_slaves(file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty);
+
+    //CLOSE PIPES
+    close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
+    return 0;
+}
+
+///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
+void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
+{
+    for (int i = 0; i < slave_qty; i++)
+    {
+        if (close(write_to_slave_fds[i][WRITE_PIPE]) == ERROR)
+        {
+            perror("close()");
+            exit(EXIT_FAILURE);
+        }
+        if (close(read_from_slave_fds[i][READ_PIPE]) == ERROR)
+        {
+            perror("close()");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty)
+{
+    //PROCESS FILES
+    int sent_files = 0;
+    int processed_files = 0;
+    fd_set read_fds_set;
+    int ready;
+    int ndfs = -1;
+
+    //FIRST FILE DISPATCH
+    for (int i = 0; i < slave_qty && sent_files < file_qty; i++)
+    {
+        for (int j = 0; j < FILES_PER_PROCESS; j++)
+        {
+            dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
+        }
+    }
+    //PROCESS FILES
+    while (processed_files < file_qty)
+    {
+        //INITIALIZE FD SET FOR SELECT
+        FD_ZERO(&read_fds_set);
+        for (size_t i = 0; i < slave_qty; i++)
+        {
+            int fd = read_from_slave_fds[i][0];
+
+            FD_SET(fd, &read_fds_set);
+            ndfs = max(ndfs, fd);
+        }
+
+        //WAIT FOR RESULTS
+        ready = select(ndfs + 1, &read_fds_set, NULL, NULL, NULL);
+
+        if (ready == ERROR)
+        {
+            perror("select()");
+            exit(EXIT_FAILURE);
+        }
+        printf("READY SELECT\n");
+        //CHECK ALL RESULTS
+        //struct Node *head = NULL;
+        for (int i = 0; i < slave_qty; i++)
+        {
+            int fd = read_from_slave_fds[i][0];
+            if (FD_ISSET(fd, &read_fds_set))
+            {
+                printf("fd ready: %d\n", fd);
+                processed_files++;
+                //RESULT FROM SLAVE i IS READY TO BE READ
+                char result[RESULT_MAX_SIZE];
+
+                //READ RESULT
+                int count;
+                if ((count = read(fd, result, RESULT_MAX_SIZE)) == ERROR)
+                {
+                    perror("read() results");
+                    exit(EXIT_FAILURE);
+                }
+
+                result[count] = '\0';
+
+                //GET RESULT MODIFICATION TIME
+                struct stat resultStat;
+                fstat(read_from_slave_fds[i][0], &resultStat);
+                //INSERT RESULT IN SORTED LINKED LIST
+
+                // struct Node *node = (struct Node *)malloc(sizeof(struct Node));
+                // strcpy(node->result, result);
+                // node->mod_time = resultStat.st_mtime;
+                // sortedInsert(&head, node);
+
+                printf("result=%s | time=%s\n", result, ctime(&resultStat.st_mtime));
+
+                if (sent_files < file_qty)
+                {
+                    dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
+                }
+            }
+        }
+        //head = NULL;
+        sleep(2); //END PROCESS FILES
+    }
+}
+
+void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
+{
 
     //CREATE SLAVES
     int pid;
@@ -53,37 +163,7 @@ int main(int argc, char *argv[])
         else if (pid == 0)
         {
             //SLAVE CODE
-            if (close(0) == ERROR)
-            {
-                perror("close()");
-                exit(EXIT_FAILURE);
-            }
-            if (dup(write_to_slave_fds[i][0]) == ERROR)
-            {
-                perror("dup()");
-                exit(EXIT_FAILURE);
-            }
-            if (close(1) == ERROR)
-            {
-                perror("close()");
-                exit(EXIT_FAILURE);
-            }
-            if (dup(read_from_slave_fds[i][1]) == ERROR)
-            {
-                perror("dup()");
-                exit(EXIT_FAILURE);
-            }
-
-            if (close(write_to_slave_fds[i][1]) == ERROR)
-            {
-                perror("close()");
-                exit(EXIT_FAILURE);
-            }
-            if (close(read_from_slave_fds[i][0]) == ERROR)
-            {
-                perror("close()");
-                exit(EXIT_FAILURE);
-            }
+            config_slave_pipes(i, read_from_slave_fds, write_to_slave_fds);
 
             char buff[2];
             if (sprintf(buff, "%d", i) == ERROR)
@@ -91,138 +171,109 @@ int main(int argc, char *argv[])
                 perror("sprintf()");
                 exit(EXIT_FAILURE);
             };
-            printf("slave:%d\n", getpid());
+
             if (execl("./slave", "./slave", buff, NULL) < 0)
             {
                 perror("exec()");
                 exit(EXIT_FAILURE);
             }
-            printf("slave:%d\n", getpid());
         }
         //PARENT CODE
-        if (close(write_to_slave_fds[i][0]) == ERROR)
-        {
-            perror("close()");
-            exit(EXIT_FAILURE);
-        }
-        if (close(read_from_slave_fds[i][1]) == ERROR)
-        {
-            perror("close()");
-            exit(EXIT_FAILURE);
-        }
+        config_master_pipes(i, read_from_slave_fds, write_to_slave_fds);
     }
+}
 
-    //PROCESS FILES
-    int sent_files = 0;
-    int processed_files = 0;
-    fd_set read_fds_set;
-    int ready;
-    int ndfs = -1;
-    char **filePaths = argv + 1;
-
-    //FIRST FILE DISPATCH
-    for (int i = 0; i < slave_qty && sent_files < file_qty; i++)
+void config_master_pipes(int i, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
+{
+    if (close(write_to_slave_fds[i][READ_PIPE]) == ERROR)
     {
-        for (int j = 0; j < FILES_PER_PROCESS; j++)
-        {
-            char *file = filePaths[sent_files++];
-
-            if (file != NULL)
-            {
-                size_t len = (size_t)strlen(file);
-                char buff[len + 1];
-                strcpy(buff, file);
-                buff[len] = '\0';
-
-                printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", sent_files, file, i);
-
-                if (write(write_to_slave_fds[i][1], file, len + 1) == ERROR)
-                {
-                    perror("write() to slave");
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        perror("close()");
+        exit(EXIT_FAILURE);
     }
-    //PROCESS FILES
-    while (processed_files < file_qty)
+    if (close(read_from_slave_fds[i][WRITE_PIPE]) == ERROR)
     {
-        //INITIALIZE FD SET FOR SELECT
-        // ndfs = initializeReadFdSet(&read_fds_set, read_from_slave_fds, slave_qty);
-        FD_ZERO(&read_fds_set);
-        for (size_t i = 0; i < slave_qty; i++)
-        {
-            int fd = read_from_slave_fds[i][0];
-
-            FD_SET(fd, &read_fds_set);
-            ndfs = max(ndfs, fd);
-        }
-
-        //WAIT FOR RESULTS
-        ready = select(ndfs + 1, &read_fds_set, NULL, NULL, NULL);
-
-        if (ready == ERROR)
-        {
-            perror("select()");
-            exit(EXIT_FAILURE);
-        }
-
-        //CHECK ALL RESULTS
-        for (int i = 0; i < slave_qty; i++)
-        {
-            int fd = read_from_slave_fds[i][0];
-            if (FD_ISSET(fd, &read_fds_set))
-            {
-                printf("fd ready: %d\n", fd);
-                processed_files++;
-                //RESULT FROM SLAVE i IS READY TO BE READ
-                char result[RESULT_SIZE];
-
-                int count;
-                if ((count = read(fd, result, RESULT_SIZE)) == ERROR)
-                {
-                    perror("read() results");
-                    exit(EXIT_FAILURE);
-                }
-                printf("result: %s\n", result);
-                if (sent_files < file_qty)
-                {
-                    char *file = filePaths[sent_files++];
-
-                    if (file != NULL)
-                    {
-                        size_t len = (size_t)strlen(file);
-                        char buff[len + 1];
-                        strcpy(buff, file);
-                        buff[len] = '\0';
-
-                        printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", sent_files, file, i);
-
-                        if (write(write_to_slave_fds[i][1], file, len + 1) == ERROR)
-                        {
-                            perror("write() to slave");
-                            exit(EXIT_FAILURE);
-                        }
-                    }
-                }
-            }
-        }
-        //END PROCESS FILES
+        perror("close()");
+        exit(EXIT_FAILURE);
     }
+}
 
-    //CLOSE PIPES
-    for (int i = 0; i < slave_qty; i++)
+void config_slave_pipes(int i, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
+{
+    //CLOSE SLAVE STANDARD INPUT FILE DESCRIPTOR
+    if (close(STDIN) == ERROR)
     {
-        if (close(write_to_slave_fds[i][1]) == ERROR)
+        perror("close()");
+        exit(EXIT_FAILURE);
+    }
+
+    if (dup(write_to_slave_fds[i][READ_PIPE]) == ERROR)
+    {
+        perror("dup()");
+        exit(EXIT_FAILURE);
+    }
+    if (close(STDOUT) == ERROR)
+    {
+        perror("close()");
+        exit(EXIT_FAILURE);
+    }
+    if (dup(read_from_slave_fds[i][WRITE_PIPE]) == ERROR)
+    {
+        perror("dup()");
+        exit(EXIT_FAILURE);
+    }
+
+    if (close(write_to_slave_fds[i][WRITE_PIPE]) == ERROR)
+    {
+        perror("close()");
+        exit(EXIT_FAILURE);
+    }
+    if (close(read_from_slave_fds[i][READ_PIPE]) == ERROR)
+    {
+        perror("close()");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_paths, int *sent_files)
+{
+    char *file = file_paths[(*sent_files)++];
+
+    if (file != NULL)
+    {
+        size_t len = (size_t)strlen(file);
+
+        printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
+
+        if (write(write_to_slave_fds[write_index][1], file, len + 1) == ERROR)
         {
-            perror("close()");
-            exit(EXIT_FAILURE);
-        }
-        if (close(read_from_slave_fds[i][0]) == ERROR)
-        {
-            perror("close()");
+            perror("write() to slave");
             exit(EXIT_FAILURE);
         }
     }
-    return 0;
+}
+
+int sortedInsert(struct Node **head, struct Node *node)
+{
+    if (node == NULL)
+    {
+        return -1;
+    }
+    if (*head == NULL)
+    {
+        *head = node;
+
+        return 1;
+    }
+    struct Node *current = *head;
+    struct Node *prev = NULL;
+    while (current != NULL && node->mod_time > current->mod_time)
+    {
+        printf("current:%s\n", current->result);
+        prev = current;
+        current = current->next;
+    }
+
+    prev->next = node;
+    node->next = current;
+    return 1;
 }
