@@ -226,8 +226,70 @@ int main(int argc, char *argv[])
         }
     }
 
-    //FOR SHM 
-    //send_more_files(total_files_number, pipes, shm_ptr, mem_info, files);
-    //shutdown_shm(mem_info, shm_ptr) --> podriamos cerrar pipes con esto tmb
+    finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
+}
+
+//==============================IMPLEMENTATION===================================================
+void * create_shared_memory(){
+    void * shm_ptr = NULL;
+    //creo la memoria compartida
+    int shmid = 0;
+    shmid = shm_open(SHM_NAME, O_RDWR | O_CREAT, S_IRWXU);
+    if(shmid < 0){
+        perror("smh_open");
+        exit(EXIT_FAILURE);
+    }
+    //chequeo si estamos ok con el tema del tamaño de la memoria 
+    if(ftruncate(shmid, SHM_MAX_SIZE) == -1){
+        perror("can't truncate");
+        shm_unlink(SHM_NAME);
+        exit(EXIT_FAILURE);
+    }
+
+    //chequeo si se puede conectar
+    if ((shm_ptr = (void *) mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED){
+        perror("can't attach memory");
+        shm_unlink(SHM_NAME);
+        exit(EXIT_FAILURE);
+    }
+
+    return shm_ptr;
+}
+
+shm_info initialize_shared_memory(void * shm_ptr){
+    t_shm_info shm_info;
+    //apunto a donde arranca
+    shm_info.offset = sizeof(t_shm_info);
+    shm_info.has_finished = 0;
+
+    if(sem_init(&shm_info.semaphore, 1, 0) < 0){
+        perror("Error initializing semaphore");
+        unlink(SHM_NAME);
+        exit(EXIT_FAILURE);
+    }
+    memcpy(shm_ptr, &shm_info, sizeof(t_shm_info));
+    return shm_ptr;
+}
+
+void clear_shared_memory(void * shm_ptr, shm_info mem_info){
+    sem_destroy(&mem_info->semaphore);
+    munmap(shm_ptr, SHM_MAX_SIZE);
+    shm_unlink(SHM_NAME);
+}
+
+void write_result_to_shm(void * shm_ptr, shm_info mem_info, char * result){
+    strcpy((char *) shm_ptr + mem_info->offset, result);
+    mem_info->offset += RESULTS_INFO_SIZE;
+    if (sem_post(&mem_info->semaphore) < 0){
+        perror("Error in wait");
+        clear_shared_memory(shm_ptr, mem_info);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void finish_program(shm_info mem_info, void * shm_ptr){
+    mem_info->has_finished = 1;
+    //metemos cerrado de pipes y frees necesarios aca?
+    clear_shared_memory(shm_ptr, mem_info);
 }
