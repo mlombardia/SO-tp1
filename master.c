@@ -114,17 +114,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
 
                 result[count] = '\0';
 
-                //GET RESULT MODIFICATION TIME
-                struct stat resultStat;
-                fstat(read_from_slave_fds[i][0], &resultStat);
-                //INSERT RESULT IN SORTED LINKED LIST
-
-                // struct Node *node = (struct Node *)malloc(sizeof(struct Node));
-                // strcpy(node->result, result);
-                // node->mod_time = resultStat.st_mtime;
-                // sortedInsert(&head, node);
-
-                printf("result=%s | time=%s\n", result, ctime(&resultStat.st_mtime));
+                printf("%s\n", result);
 
                 if (sent_files < file_qty)
                 {
@@ -132,7 +122,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                 }
             }
         }
-        //head = NULL;
+
         sleep(2); //END PROCESS FILES
     }
 }
@@ -165,14 +155,7 @@ void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_sla
             //SLAVE CODE
             config_slave_pipes(i, read_from_slave_fds, write_to_slave_fds);
 
-            char buff[2];
-            if (sprintf(buff, "%d", i) == ERROR)
-            {
-                perror("sprintf()");
-                exit(EXIT_FAILURE);
-            };
-
-            if (execl("./slave", "./slave", buff, NULL) < 0)
+            if (execl("./slave", "./slave", NULL) < 0)
             {
                 perror("exec()");
                 exit(EXIT_FAILURE);
@@ -240,40 +223,15 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
 
     if (file != NULL)
     {
+
         size_t len = (size_t)strlen(file);
 
         printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
 
-        if (write(write_to_slave_fds[write_index][1], file, len + 1) == ERROR)
+        if (write(write_to_slave_fds[write_index][1], file, len) == ERROR)
         {
             perror("write() to slave");
             exit(EXIT_FAILURE);
         }
     }
-}
-
-int sortedInsert(struct Node **head, struct Node *node)
-{
-    if (node == NULL)
-    {
-        return -1;
-    }
-    if (*head == NULL)
-    {
-        *head = node;
-
-        return 1;
-    }
-    struct Node *current = *head;
-    struct Node *prev = NULL;
-    while (current != NULL && node->mod_time > current->mod_time)
-    {
-        printf("current:%s\n", current->result);
-        prev = current;
-        current = current->next;
-    }
-
-    prev->next = node;
-    node->next = current;
-    return 1;
 }

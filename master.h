@@ -18,18 +18,11 @@
 #define READ_PIPE 0
 #define WRITE_PIPE 1
 #define max(x, y) ((x) > (y) ? (x) : (y))
-struct Node
-{
-    char result[RESULT_MAX_SIZE];
-    time_t mod_time;
-    struct Node *next;
-} Node;
 
 void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void config_master_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void config_slave_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty);
 void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
-int sortedInsert(struct Node **head, struct Node *node);
 void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_paths, int *sent_files);
 #endif

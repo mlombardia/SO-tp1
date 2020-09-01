@@ -21,16 +21,16 @@ void read_files()
             exit(EXIT_FAILURE);
         }
         file_path[count] = '\0';
-        // process_file(file_path);
+        process_file(file_path);
 
-        char buff[RESULT_MAX_SIZE];
-        sprintf(buff, "%s length: %d\n", file_path, count);
+        // char buff[RESULT_MAX_SIZE];
+        // //sprintf(buff, "%s length: %d\n", file_path, count);
 
-        if (write(1, buff, strlen(buff)) == -1)
-        {
-            perror("write()");
-            exit(EXIT_FAILURE);
-        }
+        // if (write(1, buff, strlen(buff)) == -1)
+        // {
+        //     perror("write()");
+        //     exit(EXIT_FAILURE);
+        // }
     }
 }
 
@@ -45,7 +45,8 @@ void call_minisat(char *file_path, char *output)
 {
     int file_len = strlen(file_path);
     char command[file_len + 85];
-    sprintf(command, "minisat %s | grep -o -e \"Number of.*[0-9]\\+\" -e \"CPU time.*\" -e \".*SATISFIABLE", file_path);
+
+    sprintf(command, "minisat %s | grep -o -e \"Number of.*[0-9]\\+\" -e \"CPU time.*\" -e \".*SATISFIABLE\"", file_path);
 
     FILE *result = popen(command, "r");
 
@@ -57,12 +58,14 @@ void call_minisat(char *file_path, char *output)
     char c;
 
     sprintf(output, "%s:\n", file_path);
-    int i = strlen(output) + 1;
+    int i = strlen(output);
     do
     {
         c = fgetc(result);
+
         if (feof(result))
         {
+
             output[i] = '\0';
             break;
         }
