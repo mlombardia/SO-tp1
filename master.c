@@ -9,6 +9,8 @@ int main(int argc, char *argv[])
     }
 
     //INIT SHARED MEMORY
+    void *shm_ptr = create_shared_memory();
+    shm_info mem_info = initialize_shared_memory(shm_ptr);
 
     //FILE PATHS POINTER
     char **file_paths = argv + 1;
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
 
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
+    finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
 }
 
