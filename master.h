@@ -16,7 +16,7 @@
 
 #define RESULT_MAX_SIZE 256
 #define SLAVE_CANT_PORCENTAGE 10
-#define FILES_PER_PROCESS 1
+#define FILES_PER_PROCESS 5
 #define ERROR -1
 #define STDOUT 1
 #define STDIN 0

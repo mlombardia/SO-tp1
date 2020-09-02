@@ -228,10 +228,15 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
     {
 
         size_t len = (size_t)strlen(file);
-
+        char aux[len + 2];
+        if (sprintf(aux, "@%s", file) < 0)
+        {
+            perror("sprintf()");
+            exit(EXIT_FAILURE);
+        }
         printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
 
-        if (write(write_to_slave_fds[write_index][1], file, len) == ERROR)
+        if (write(write_to_slave_fds[write_index][1], aux, len + 2) == ERROR)
         {
             perror("write() to slave");
             exit(EXIT_FAILURE);

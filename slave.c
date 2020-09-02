@@ -10,27 +10,35 @@ int main(int argc, char *argv[])
 
 void read_files()
 {
-    char file_path[FILE_PATH_MAX_SIZE];
+    char file_paths[FILES_PER_PROCESS * FILE_PATH_MAX_SIZE];
     int count;
 
-    while ((count = read(STDIN, file_path, FILE_PATH_MAX_SIZE)) > 0)
+    while ((count = read(STDIN, file_paths, FILES_PER_PROCESS * FILE_PATH_MAX_SIZE)) > 0)
     {
         if (count == -1)
         {
             perror("read()");
             exit(EXIT_FAILURE);
         }
-        file_path[count] = '\0';
-        process_file(file_path);
 
-        // char buff[RESULT_MAX_SIZE];
-        // //sprintf(buff, "%s length: %d\n", file_path, count);
+        file_paths[count] = '\0';
+        char file_path[FILE_PATH_MAX_SIZE];
+        char c;
+        for (int i = 1, j = 0; i <= count; i++)
+        {
+            c = file_paths[i];
+            if (c == '@' || i == count)
+            {
 
-        // if (write(1, buff, strlen(buff)) == -1)
-        // {
-        //     perror("write()");
-        //     exit(EXIT_FAILURE);
-        // }
+                file_path[j] = '\0';
+                process_file(file_path);
+                j = 0;
+            }
+            else
+            {
+                file_path[j++] = c;
+            }
+        }
     }
 }
 
@@ -46,7 +54,11 @@ void call_minisat(char *file_path, char *output)
     int file_len = strlen(file_path);
     char command[file_len + 85];
 
-    sprintf(command, "minisat %s | grep -o -e \"Number of.*[0-9]\\+\" -e \"CPU time.*\" -e \".*SATISFIABLE\"", file_path);
+    if (sprintf(command, "minisat %s | grep -o -e \"Number of.*[0-9]\\+\" -e \"CPU time.*\" -e \".*SATISFIABLE\"", file_path) < 0)
+    {
+        perror("sprintf()");
+        exit(EXIT_FAILURE);
+    }
 
     FILE *result = popen(command, "r");
 
@@ -57,7 +69,11 @@ void call_minisat(char *file_path, char *output)
     }
     char c;
 
-    sprintf(output, "%s:\n", file_path);
+    if (sprintf(output, "%s:\n", file_path) < 0)
+    {
+        perror("sprintf()");
+        exit(EXIT_FAILURE);
+    };
     int i = strlen(output);
     do
     {
