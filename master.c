@@ -2,6 +2,12 @@
 
 int main(int argc, char *argv[])
 {
+
+    //preparo el param para mandar al stdout o al view dependiendo como se invoque
+    char size_for_view[5];
+    int len = sprintf(size_for_view,"%d\n", argc-1);
+    write(STDOUT_FILENO, size_for_view, len);
+
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <pathname>\n", argv[0]);
@@ -9,8 +15,8 @@ int main(int argc, char *argv[])
     }
 
     //INIT SHARED MEMORY
-    //void *shm_ptr = create_shared_memory();
-    //shm_info mem_info = initialize_shared_memory(shm_ptr);
+    void *shm_ptr = create_shared_memory();
+    shm_info mem_info = initialize_shared_memory(shm_ptr);
 
     //FILE PATHS POINTER
     char **file_paths = argv + 1;
@@ -31,11 +37,19 @@ int main(int argc, char *argv[])
     create_slaves(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
     //SEND FILES TO SLAVES
-    send_files_to_slaves(file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty);
+    send_files_to_slaves(file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty, shm_ptr, mem_info);
 
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
-    //finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
+
+
+    //esto es solo para testear que estuviese guardando bien en la shm; se puede borrar
+    printf("%s", (char*) (shm_ptr+sizeof(t_shm_info)));
+    printf("%s", (char*) (shm_ptr+sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL));
+    printf("%s", (char*) (shm_ptr+sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL + RESULT_MAX_INFO_TOTAL));
+    //---------------------------------------------------------------------------------------------------
+
+    finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
 }
 
@@ -57,7 +71,7 @@ void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_t
     }
 }
 
-void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty)
+void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void * shm_ptr, shm_info mem_info)
 {
     //PROCESS FILES
     int sent_files = 0;
@@ -124,6 +138,8 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                 }
 
                 printf("%d)%s\n", processed_files, result + 3);
+                write_result_to_shm(shm_ptr, mem_info, result);
+                printf("este es el result: %s\n", result);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
@@ -304,14 +320,14 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
     shm_unlink(SHM_NAME);
 }
 
-void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
-{
-    strcpy((char *)shm_ptr + mem_info->offset, result);
-    mem_info->offset += RESULTS_INFO_SIZE;
-    if (sem_post(&mem_info->semaphore) < 0)
-    {
+void write_result_to_shm(void * shm_ptr, shm_info mem_info, char * result){
+    printf("aca esta escribiendo %s", result);
+    strcpy((char *) shm_ptr + mem_info->offset, result);
+    printf("a ver que tiene la mem %s\n", (char *) (shm_ptr+sizeof(t_shm_info)));
+    mem_info->offset += RESULT_MAX_INFO_TOTAL;
+    if (sem_post(&mem_info->semaphore) < 0){
         perror("Error in wait");
-        //clear_shared_memory(shm_ptr, mem_info);
+        clear_shared_memory(shm_ptr, mem_info);
         exit(EXIT_FAILURE);
     }
 }
@@ -320,5 +336,5 @@ void finish_program(shm_info mem_info, void *shm_ptr)
 {
     mem_info->has_finished = 1;
     //metemos cerrado de pipes y frees necesarios aca?
-    //clear_shared_memory(shm_ptr, mem_info);
+    clear_shared_memory(shm_ptr, mem_info);
 }

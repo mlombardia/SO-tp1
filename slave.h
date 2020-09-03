@@ -7,6 +7,8 @@
 #define FILE_PATH_MAX_SIZE 128
 #define INITIAL_FILE_DISPATCH_QUANTITY 3
 #define RESULT_MAX_SIZE 384
+#include "utils.h"
+
 #define STDOUT 1
 #define STDIN 0
 void read_files();
