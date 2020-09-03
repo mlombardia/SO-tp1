@@ -14,9 +14,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#define RESULT_MAX_SIZE 256
-#define SLAVE_CANT_PORCENTAGE 10
-#define FILES_PER_PROCESS 5
+#define RESULT_MAX_SIZE 384
+#define SLAVE_CANT_PORCENTAGE 20
+#define INITIAL_FILE_DISPATCH_QUANTITY 3
 #define ERROR -1
 #define STDOUT 1
 #define STDIN 0

@@ -17,11 +17,12 @@ int main(int argc, char *argv[])
 
     //FILES QUANTITY
     int file_qty = argc - 1;
-    printf("FILE CANT: %d\n", file_qty);
+    printf("File quantity: %d\n", file_qty);
 
     //CALCULATE SLAVE QUANTITY
-    int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / FILES_PER_PROCESS);
 
+    int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
+    printf("Slave quantity: %d\n", slave_qty);
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
     int read_from_slave_fds[slave_qty][2];
@@ -65,10 +66,10 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
     int ready;
     int ndfs = -1;
 
-    //FIRST FILE DISPATCH
+    //INITIAL FILE DISPATCH
     for (int i = 0; i < slave_qty && sent_files < file_qty; i++)
     {
-        for (int j = 0; j < FILES_PER_PROCESS; j++)
+        for (int j = 0; j < INITIAL_FILE_DISPATCH_QUANTITY; j++)
         {
             dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
         }
@@ -76,6 +77,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
     //PROCESS FILES
     while (processed_files < file_qty)
     {
+
         //INITIALIZE FD SET FOR SELECT
         FD_ZERO(&read_fds_set);
         for (size_t i = 0; i < slave_qty; i++)
@@ -91,18 +93,17 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
 
         if (ready == ERROR)
         {
-            perror("select()");
+
             exit(EXIT_FAILURE);
         }
-        printf("READY SELECT\n");
         //CHECK ALL RESULTS
-        //struct Node *head = NULL;
         for (int i = 0; i < slave_qty; i++)
         {
+
             int fd = read_from_slave_fds[i][0];
             if (FD_ISSET(fd, &read_fds_set))
             {
-                printf("fd ready: %d\n", fd);
+
                 processed_files++;
                 //RESULT FROM SLAVE i IS READY TO BE READ
                 char result[RESULT_MAX_SIZE];
@@ -114,19 +115,24 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     perror("read() results");
                     exit(EXIT_FAILURE);
                 }
-
                 result[count] = '\0';
+                int slave_file_count = 0;
+                if (sscanf(result, "%d|", &slave_file_count) < 0)
+                {
+                    perror("sprintf()");
+                    exit(EXIT_FAILURE);
+                }
 
-                printf("%s\n", result);
+                printf("%d)%s\n", processed_files, result + 3);
 
-                if (sent_files < file_qty)
+                if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
                     dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
                 }
             }
         }
 
-        sleep(2); //END PROCESS FILES
+        //END PROCESS FILES
     }
 }
 
@@ -234,9 +240,9 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
             perror("sprintf()");
             exit(EXIT_FAILURE);
         }
-        printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
+        //  printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
 
-        if (write(write_to_slave_fds[write_index][1], aux, len + 2) == ERROR)
+        if (write(write_to_slave_fds[write_index][1], aux, len + 1) == ERROR)
         {
             perror("write() to slave");
             exit(EXIT_FAILURE);
@@ -244,24 +250,28 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
     }
 }
 //parte shm - cambiar en base a lo hablado
-void * create_shared_memory(){
-    void * shm_ptr = NULL;
+void *create_shared_memory()
+{
+    void *shm_ptr = NULL;
     //creo la memoria compartida
     int shmid = 0;
     shmid = shm_open(SHM_NAME, O_RDWR | O_CREAT, S_IRWXU);
-    if(shmid < 0){
+    if (shmid < 0)
+    {
         perror("smh_open");
         exit(EXIT_FAILURE);
     }
-    //chequeo si estamos ok con el tema del tamaño de la memoria 
-    if(ftruncate(shmid, SHM_MAX_SIZE) == -1){
+    //chequeo si estamos ok con el tema del tamaño de la memoria
+    if (ftruncate(shmid, SHM_MAX_SIZE) == -1)
+    {
         perror("can't truncate");
         shm_unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
 
     //chequeo si se puede conectar
-    if ((shm_ptr = (void *) mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED){
+    if ((shm_ptr = (void *)mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED)
+    {
         perror("can't attach memory");
         shm_unlink(SHM_NAME);
         exit(EXIT_FAILURE);
@@ -270,13 +280,15 @@ void * create_shared_memory(){
     return shm_ptr;
 }
 
-shm_info initialize_shared_memory(void * shm_ptr){
+shm_info initialize_shared_memory(void *shm_ptr)
+{
     t_shm_info shm_info;
     //apunto a donde arranca
     shm_info.offset = sizeof(t_shm_info);
     shm_info.has_finished = 0;
 
-    if(sem_init(&shm_info.semaphore, 1, 0) < 0){
+    if (sem_init(&shm_info.semaphore, 1, 0) < 0)
+    {
         perror("Error initializing semaphore");
         unlink(SHM_NAME);
         exit(EXIT_FAILURE);
@@ -285,23 +297,27 @@ shm_info initialize_shared_memory(void * shm_ptr){
     return shm_ptr;
 }
 
-void clear_shared_memory(void * shm_ptr, shm_info mem_info){
+void clear_shared_memory(void *shm_ptr, shm_info mem_info)
+{
     sem_destroy(&mem_info->semaphore);
     munmap(shm_ptr, SHM_MAX_SIZE);
     shm_unlink(SHM_NAME);
 }
 
-void write_result_to_shm(void * shm_ptr, shm_info mem_info, char * result){
-    strcpy((char *) shm_ptr + mem_info->offset, result);
+void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
+{
+    strcpy((char *)shm_ptr + mem_info->offset, result);
     mem_info->offset += RESULTS_INFO_SIZE;
-    if (sem_post(&mem_info->semaphore) < 0){
+    if (sem_post(&mem_info->semaphore) < 0)
+    {
         perror("Error in wait");
         //clear_shared_memory(shm_ptr, mem_info);
         exit(EXIT_FAILURE);
     }
 }
 
-void finish_program(shm_info mem_info, void * shm_ptr){
+void finish_program(shm_info mem_info, void *shm_ptr)
+{
     mem_info->has_finished = 1;
     //metemos cerrado de pipes y frees necesarios aca?
     //clear_shared_memory(shm_ptr, mem_info);

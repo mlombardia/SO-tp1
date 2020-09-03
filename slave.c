@@ -3,6 +3,7 @@
 int main(int argc, char *argv[])
 {
     read_files();
+
     return 0;
 }
 
@@ -10,28 +11,33 @@ int main(int argc, char *argv[])
 
 void read_files()
 {
-    char file_paths[FILES_PER_PROCESS * FILE_PATH_MAX_SIZE];
+    int read_size = INITIAL_FILE_DISPATCH_QUANTITY * FILE_PATH_MAX_SIZE;
+    char file_paths[read_size];
     int count;
-
-    while ((count = read(STDIN, file_paths, FILES_PER_PROCESS * FILE_PATH_MAX_SIZE)) > 0)
+    int file_number = 0;
+    while ((count = read(STDIN, file_paths, read_size)) > 0)
     {
         if (count == -1)
         {
             perror("read()");
             exit(EXIT_FAILURE);
         }
+        file_paths[count] = '@';
 
-        file_paths[count] = '\0';
         char file_path[FILE_PATH_MAX_SIZE];
         char c;
-        for (int i = 1, j = 0; i <= count; i++)
+        int j = 0;
+        for (int i = 1; i <= count; i++)
         {
             c = file_paths[i];
-            if (c == '@' || i == count)
+            if (c == '@')
             {
 
                 file_path[j] = '\0';
-                process_file(file_path);
+                file_number++;
+
+                process_file(file_path, &file_number);
+
                 j = 0;
             }
             else
@@ -42,18 +48,19 @@ void read_files()
     }
 }
 
-void process_file(char *file_path)
+void process_file(char *file_path, int *file_number)
 {
-    char output[RESULT_MAX_SIZE + FILE_PATH_MAX_SIZE + 3];
-    call_minisat(file_path, output);
+
+    char output[RESULT_MAX_SIZE + FILE_PATH_MAX_SIZE + 4];
+    call_minisat(file_path, file_number, output);
     send_result(output);
 }
 
-void call_minisat(char *file_path, char *output)
+void call_minisat(char *file_path, int *file_number, char *output)
 {
     int file_len = strlen(file_path);
     char command[file_len + 85];
-
+    int output_size = RESULT_MAX_SIZE + FILE_PATH_MAX_SIZE + 4;
     if (sprintf(command, "minisat %s | grep -o -e \"Number of.*[0-9]\\+\" -e \"CPU time.*\" -e \".*SATISFIABLE\"", file_path) < 0)
     {
         perror("sprintf()");
@@ -69,7 +76,7 @@ void call_minisat(char *file_path, char *output)
     }
     char c;
 
-    if (sprintf(output, "%s:\n", file_path) < 0)
+    if (sprintf(output, "%d|%s:\n", *file_number, file_path) < 0)
     {
         perror("sprintf()");
         exit(EXIT_FAILURE);
@@ -81,12 +88,11 @@ void call_minisat(char *file_path, char *output)
 
         if (feof(result))
         {
-
             output[i] = '\0';
             break;
         }
         output[i++] = c;
-    } while (i < RESULT_MAX_SIZE);
+    } while (i < output_size);
 }
 
 void send_result(char *output)
