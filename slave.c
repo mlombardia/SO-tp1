@@ -26,8 +26,10 @@ void read_files()
 
         char file_path[FILE_PATH_MAX_SIZE];
         char c;
+        int i;
         int j = 0;
-        for (int i = 1; i <= count; i++)
+
+        for (i = 1; i <= count; i++)
         {
             c = file_paths[i];
             if (c == '@')
