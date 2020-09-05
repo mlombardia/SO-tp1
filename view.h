@@ -2,10 +2,10 @@
 #define _VIEW_H_
 #include "utils.h"
 #include "master.h"
-
-void * connect_to_shm(shm_info *mem_info);
+int digitCount(int n);
+void *connect_to_shm(shm_info *mem_info);
 int open_shm(const char *name, int flag, mode_t mode);
-void * mapping_shm(void *addr, int prot, int flags, int fd, off_t offset);
+void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset);
 void print_results(void *ptr_shm, shm_info mem_info, int total_files);
 void shm_disconnect(void *ptr_shm, shm_info mem_info);
 #endif

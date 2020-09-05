@@ -72,6 +72,8 @@ void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
 void print_results(void *ptr_shm, shm_info mem_info, int total_files)
 {
     int current = 1;
+    size_t offset = sizeof(t_shm_info);
+
     //int offset = sizeof(t_shm_info);
     while (current <= total_files)
     {
@@ -96,9 +98,10 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
             }
             else
             {
-                printf("%d) %s", current, (char *)ptr_shm + mem_info->offset + 1);
+
+                printf("%d) %s", current, (char *)ptr_shm + offset);
                 putchar('\n');
-                mem_info->offset += RESULT_MAX_INFO_TOTAL;
+                offset += RESULT_MAX_INFO_TOTAL;
                 //offset += RESULT_MAX_INFO_TOTAL;
                 current++;
                 if (sem_post(&mem_info->semaphore) < 0)
@@ -119,4 +122,15 @@ void shm_disconnect(void *ptr_shm, shm_info mem_info)
         perror("munmap");
         exit(EXIT_FAILURE);
     }
+}
+
+int digitCount(int n)
+{
+    int count = 0;
+    while (n > 0)
+    {
+        n /= 10;
+        count++;
+    }
+    return count;
 }

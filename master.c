@@ -138,6 +138,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     exit(EXIT_FAILURE);
                 }
 
+                printf("%d)%s\n", processed_files, result);
                 write_result_to_shm(shm_ptr, mem_info, result, processed_files);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
