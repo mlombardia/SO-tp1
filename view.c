@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         char response[5];
-        if (read(STDIN_FILENO, response, 5) < 0)
+        if (read(STDIN, response, 5) < 0)
         {
             perror("read()");
             exit(EXIT_FAILURE);
@@ -50,8 +50,9 @@ int open_shm(const char *name, int flag, mode_t mode)
     int fd_shm = shm_open(name, flag, mode);
     if (fd_shm == -1)
     {
-        printf("shm_open error: ");
-        printf("%s\n", strerror(errno));
+
+        perror("open_shm()");
+
         exit(EXIT_FAILURE);
     }
     return fd_shm;
@@ -62,8 +63,7 @@ void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
     void *ptr_shm = mmap(addr, SHM_MAX_SIZE, prot, flags, fd, offset);
     if (ptr_shm == (void *)-1)
     {
-        printf("Error\n");
-        printf("%s\n", strerror(errno));
+        perror("mapping_shm()");
         exit(EXIT_FAILURE);
     }
     return ptr_shm;
@@ -122,15 +122,4 @@ void shm_disconnect(void *ptr_shm, shm_info mem_info)
         perror("munmap");
         exit(EXIT_FAILURE);
     }
-}
-
-int digitCount(int n)
-{
-    int count = 0;
-    while (n > 0)
-    {
-        n /= 10;
-        count++;
-    }
-    return count;
 }

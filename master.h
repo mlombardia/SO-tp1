@@ -15,13 +15,11 @@
 #include <sys/mman.h>
 #include "utils.h"
 
-#define RESULT_MAX_SIZE 384
 #define SLAVE_CANT_PORCENTAGE 20
-#define INITIAL_FILE_DISPATCH_QUANTITY 3
+
 #define FILES_PER_PROCESS 1
 #define ERROR -1
-#define STDOUT 1
-#define STDIN 0
+
 #define READ_PIPE 0
 #define WRITE_PIPE 1
 #define max(x, y) ((x) > (y) ? (x) : (y))

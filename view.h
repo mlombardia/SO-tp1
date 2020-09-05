@@ -1,8 +1,13 @@
 #ifndef _VIEW_H_
 #define _VIEW_H_
+#include <stdio.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 #include "utils.h"
-#include "master.h"
-int digitCount(int n);
+#include <fcntl.h>
 void *connect_to_shm(shm_info *mem_info);
 int open_shm(const char *name, int flag, mode_t mode);
 void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset);
