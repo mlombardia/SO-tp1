@@ -137,10 +137,8 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     perror("sprintf()");
                     exit(EXIT_FAILURE);
                 }
-                int digits = digitCount(slave_file_count);
-                printf("%d)%s\n", processed_files, result + digits + 1);
-                write_result_to_shm(shm_ptr, mem_info, result + digits, processed_files);
-                // printf("este es el result: %s\n", result + 2);
+
+                write_result_to_shm(shm_ptr, mem_info, result, processed_files);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
@@ -153,16 +151,6 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
     }
 }
 
-int digitCount(int n)
-{
-    int count = 0;
-    while (n > 0)
-    {
-        n = n / 10;
-        count++;
-    }
-    return count;
-}
 void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
 

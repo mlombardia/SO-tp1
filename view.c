@@ -96,7 +96,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
             }
             else
             {
-                printf("%d) %s", current, (char *)ptr_shm + mem_info->offset);
+                printf("%d) %s", current, (char *)ptr_shm + mem_info->offset + 1);
                 mem_info->offset += RESULT_MAX_INFO_TOTAL;
                 //offset += RESULT_MAX_INFO_TOTAL;
                 current++;
