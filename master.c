@@ -3,20 +3,20 @@
 int main(int argc, char *argv[])
 {
 
-    //preparo el param para mandar al stdout o al view dependiendo como se invoque
-    char size_for_view[5];
-    int len = sprintf(size_for_view, "%d\n", argc - 1);
-    write(STDOUT_FILENO, size_for_view, len);
-
     if (argc < 2)
     {
         fprintf(stderr, "Usage: %s <pathname>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    //INIT SHARED MEMORY
+      //INIT SHARED MEMORY
     void *shm_ptr = create_shared_memory();
     shm_info mem_info = initialize_shared_memory(shm_ptr);
+
+    //preparo el param para mandar al stdout o al view dependiendo como se invoque
+    char size_for_view[5];
+    int len = sprintf(size_for_view, "%d\n", argc - 1);
+    write(STDOUT_FILENO, size_for_view, len);
 
     //FILE PATHS POINTER
     char **file_paths = argv + 1;
