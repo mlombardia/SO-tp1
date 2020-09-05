@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL + RESULT_MAX_INFO_TOTAL));
     //---------------------------------------------------------------------------------------------------
 
-    finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
+    //finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
 }
 
@@ -137,8 +137,8 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     exit(EXIT_FAILURE);
                 }
 
-                printf("%d)%s\n", processed_files, result + 3);
-                write_result_to_shm(shm_ptr, mem_info, result);
+                printf("%d)%s\n", processed_files, result + 2);
+                write_result_to_shm(shm_ptr, mem_info, result + 2);
                 printf("este es el result: %s\n", result + 2);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
@@ -325,6 +325,7 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
     printf("aca esta escribiendo %s", result);
     strcpy((char *)shm_ptr + mem_info->offset, result);
     printf("a ver que tiene la mem %s\n", (char *)(shm_ptr + sizeof(t_shm_info)));
+    printf("%d", (int)mem_info->offset);
     mem_info->offset += RESULT_MAX_INFO_TOTAL;
     if (sem_post(&mem_info->semaphore) < 0)
     {

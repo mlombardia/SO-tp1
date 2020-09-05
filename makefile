@@ -1,7 +1,7 @@
 all: master slave view
 
 view: view.c
-	gcc -o view view.c
+	gcc -o view view.c -pthread -lrt -lm -std=c99 -D_XOPEN_SOURCE=500
 
 slave: slave.c
 	gcc -o slave slave.c
