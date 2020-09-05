@@ -13,16 +13,16 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         };
         total_files = atoi(response);
-        printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
+        //printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
     }
     else if (argc == 2)
     {
         total_files = atoi(argv[1]);
-        printf("Hola soy el view y lo que me llego de parametro es %d\n", total_files);
+        //printf("Hola soy el view y lo que me llego de parametro es %d\n", total_files);
     }
     else
     {
-        printf("Error");
+        fprintf(stderr, "Usage: %s <file_quantity>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -97,6 +97,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
             else
             {
                 printf("%d) %s", current, (char *)ptr_shm + mem_info->offset + 1);
+                putchar('\n');
                 mem_info->offset += RESULT_MAX_INFO_TOTAL;
                 //offset += RESULT_MAX_INFO_TOTAL;
                 current++;
