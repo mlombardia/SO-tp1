@@ -7,7 +7,11 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         char response[5];
-        read(STDIN_FILENO, response, 5);
+        if (read(STDIN_FILENO, response, 5) < 0)
+        {
+            perror("read()");
+            exit(EXIT_FAILURE);
+        };
         total_files = atoi(response);
         printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
     }
@@ -67,14 +71,43 @@ void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
 
 void print_results(void *ptr_shm, shm_info mem_info, int total_files)
 {
-    int current = 0;
+    int current = 1;
     //int offset = sizeof(t_shm_info);
-    while (current < total_files)
+    while (current <= total_files)
     {
-        printf("%s", (char *)ptr_shm + mem_info->offset);
-        mem_info->offset += RESULT_MAX_INFO_TOTAL;
-        //offset += RESULT_MAX_INFO_TOTAL;
-        current++;
+
+        if (mem_info->count == 0)
+        {
+            printf("count = 0\n");
+            if (sem_wait(&mem_info->full) < 0)
+            {
+                perror("Error in wait");
+
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            if (sem_wait(&mem_info->semaphore) < 0)
+            {
+                perror("Error in wait");
+
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                printf("%d) %s", current, (char *)ptr_shm + mem_info->offset);
+                mem_info->offset += RESULT_MAX_INFO_TOTAL;
+                //offset += RESULT_MAX_INFO_TOTAL;
+                current++;
+                if (sem_post(&mem_info->semaphore) < 0)
+                {
+                    perror("Error in wait");
+
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }
     }
 }
 

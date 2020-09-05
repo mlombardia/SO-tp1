@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-      //INIT SHARED MEMORY
+    //INIT SHARED MEMORY
     void *shm_ptr = create_shared_memory();
     shm_info mem_info = initialize_shared_memory(shm_ptr);
 
@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     char size_for_view[5];
     int len = sprintf(size_for_view, "%d\n", argc - 1);
     write(STDOUT_FILENO, size_for_view, len);
+    sleep(2);
 
     //FILE PATHS POINTER
     char **file_paths = argv + 1;
@@ -42,10 +43,10 @@ int main(int argc, char *argv[])
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
-    //esto es solo para testear que estuviese guardando bien en la shm; se puede borrar
-    printf("%s", (char *)(shm_ptr + sizeof(t_shm_info)));
-    printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL));
-    printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL + RESULT_MAX_INFO_TOTAL));
+    // //esto es solo para testear que estuviese guardando bien en la shm; se puede borrar
+    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info)));
+    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL));
+    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL + RESULT_MAX_INFO_TOTAL));
     //---------------------------------------------------------------------------------------------------
 
     //finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
@@ -137,9 +138,9 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     exit(EXIT_FAILURE);
                 }
 
-                printf("%d)%s\n", processed_files, result + 2);
-                write_result_to_shm(shm_ptr, mem_info, result + 2);
-                printf("este es el result: %s\n", result + 2);
+                printf("%d)%s\n", processed_files, result + 3);
+                write_result_to_shm(shm_ptr, mem_info, result + 3, processed_files);
+                // printf("este es el result: %s\n", result + 2);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
@@ -302,8 +303,16 @@ shm_info initialize_shared_memory(void *shm_ptr)
     //apunto a donde arranca
     shm_info.offset = sizeof(t_shm_info);
     shm_info.has_finished = 0;
+    shm_info.count = 0;
 
-    if (sem_init(&shm_info.semaphore, 1, 0) < 0)
+    if (sem_init(&shm_info.semaphore, 1, 1) < 0)
+    {
+        perror("Error initializing semaphore");
+        unlink(SHM_NAME);
+        exit(EXIT_FAILURE);
+    }
+
+    if (sem_init(&shm_info.full, 1, 0) < 0)
     {
         perror("Error initializing semaphore");
         unlink(SHM_NAME);
@@ -320,18 +329,39 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
     shm_unlink(SHM_NAME);
 }
 
-void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
+void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result, int processed_files)
 {
-    printf("aca esta escribiendo %s", result);
-    strcpy((char *)shm_ptr + mem_info->offset, result);
-    printf("a ver que tiene la mem %s\n", (char *)(shm_ptr + sizeof(t_shm_info)));
-    printf("%d", (int)mem_info->offset);
-    mem_info->offset += RESULT_MAX_INFO_TOTAL;
-    if (sem_post(&mem_info->semaphore) < 0)
+
+    if (sem_wait(&mem_info->semaphore) < 0)
     {
         perror("Error in wait");
         clear_shared_memory(shm_ptr, mem_info);
         exit(EXIT_FAILURE);
+    }
+    else
+    {
+        // printf("aca esta escribiendo %s", result);
+        strcpy((char *)shm_ptr + mem_info->offset, result);
+        // printf("a ver que tiene la mem %s\n", (char *)(shm_ptr + sizeof(t_shm_info)));
+        // printf("%d", (int)mem_info->offset);
+        mem_info->offset += RESULT_MAX_INFO_TOTAL;
+        (mem_info->count)++;
+        // printf("count es %d\n", mem_info->count);
+        if (sem_post(&mem_info->semaphore) < 0)
+        {
+            perror("Error in wait");
+            clear_shared_memory(shm_ptr, mem_info);
+            exit(EXIT_FAILURE);
+        }
+        if (mem_info->count == 1)
+        {
+            if (sem_post(&mem_info->full) < 0)
+            {
+                perror("Error in wait");
+                clear_shared_memory(shm_ptr, mem_info);
+                exit(EXIT_FAILURE);
+            }
+        }
     }
 }
 
