@@ -25,7 +25,7 @@
 #define READ_PIPE 0
 #define WRITE_PIPE 1
 #define max(x, y) ((x) > (y) ? (x) : (y))
-
+int digitCount(int n);
 void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void config_master_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void config_slave_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
@@ -36,6 +36,6 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
 void *create_shared_memory();
 shm_info initialize_shared_memory(void *shm_ptr);
 void clear_shared_memory(void *shm_ptr, shm_info mem_info);
-void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result, int processed_files);
+void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result);
 void finish_program(shm_info mem_info, void *shm_ptr);
 #endif

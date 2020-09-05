@@ -137,9 +137,9 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     perror("sprintf()");
                     exit(EXIT_FAILURE);
                 }
-
-                printf("%d)%s\n", processed_files, result);
-                write_result_to_shm(shm_ptr, mem_info, result, processed_files);
+                int digits = digitCount(slave_file_count);
+                //printf("%d)%s\n", processed_files, result);
+                write_result_to_shm(shm_ptr, mem_info, result + digits + 1);
 
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
@@ -328,7 +328,7 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
     shm_unlink(SHM_NAME);
 }
 
-void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result, int processed_files)
+void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
 {
 
     if (sem_wait(&mem_info->semaphore) < 0)
@@ -369,4 +369,15 @@ void finish_program(shm_info mem_info, void *shm_ptr)
     mem_info->has_finished = 1;
     //metemos cerrado de pipes y frees necesarios aca?
     clear_shared_memory(shm_ptr, mem_info);
+}
+
+int digitCount(int n)
+{
+    int count = 0;
+    while (n > 0)
+    {
+        n /= 10;
+        count++;
+    }
+    return count;
 }
