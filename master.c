@@ -138,7 +138,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                     exit(EXIT_FAILURE);
                 }
 
-                printf("%d)%s\n", processed_files, result + 3);
+                //printf("%d)%s\n", processed_files, result + 3);
                 write_result_to_shm(shm_ptr, mem_info, result + 3, processed_files);
                 // printf("este es el result: %s\n", result + 2);
 
