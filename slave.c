@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "slave.h"
 
 int main(int argc, char *argv[])
@@ -25,13 +27,12 @@ void read_files()
         file_paths[count] = '@';
 
         char file_path[FILE_PATH_MAX_SIZE];
-        char c;
         int i;
         int j = 0;
 
         for (i = 1; i <= count; i++)
         {
-            c = file_paths[i];
+            char c = file_paths[i];
             if (c == '@')
             {
 
@@ -76,7 +77,6 @@ void call_minisat(char *file_path, int *file_number, char *output)
         perror("popen()");
         exit(EXIT_FAILURE);
     }
-    char c;
 
     if (sprintf(output, "%d|%s:\n", *file_number, file_path) < 0)
     {
@@ -86,7 +86,7 @@ void call_minisat(char *file_path, int *file_number, char *output)
     int i = strlen(output);
     do
     {
-        c = fgetc(result);
+       char c = fgetc(result);
 
         if (feof(result))
         {

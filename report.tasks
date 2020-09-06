@@ -1,0 +1,11 @@
+www.viva64.com/en/w	1	err	Help: The documentation for all analyzer warnings is available here: https://www.viva64.com/en/w/.
+/home/maxi/Documents/Projects/SO-tp1/master.c	133	warn	V557 Array overrun is possible. The value of 'count' index could reach 384.
+/home/maxi/Documents/Projects/SO-tp1/master.c	181	warn	V764 Possible incorrect order of arguments passed to 'config_slave_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
+/home/maxi/Documents/Projects/SO-tp1/master.c	190	warn	V764 Possible incorrect order of arguments passed to 'config_master_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
+/home/maxi/Documents/Projects/SO-tp1/master.c	310	note	V631 Consider inspecting the 'unlink' function call. Defining an absolute path to the file or directory is considered a poor style.
+/home/maxi/Documents/Projects/SO-tp1/master.c	317	note	V631 Consider inspecting the 'unlink' function call. Defining an absolute path to the file or directory is considered a poor style.
+/home/maxi/Documents/Projects/SO-tp1/utils.h	10	note	V1003 The macro 'RESULT_MAX_INFO_TOTAL' is a dangerous expression. The expression must be surrounded by parentheses.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	22	err	V547 Expression 'count == - 1' is always false.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	27	warn	V557 Array overrun is possible. The value of 'count' index could reach 384.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	36	warn	V557 Array overrun is possible. The value of 'i' index could reach 384.
+/home/maxi/Documents/Projects/SO-tp1/view.c	17	note	V591 The 'main' function does not return a value, which is equivalent to 'return 0'. It is possible that this is an unintended behavior. 

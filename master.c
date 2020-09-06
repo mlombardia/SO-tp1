@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "master.h"
 
 int main(int argc, char *argv[])
@@ -41,7 +43,6 @@ int main(int argc, char *argv[])
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
-    //finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
 }
 
@@ -75,7 +76,6 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
     int sent_files = 0;
     int processed_files = 0;
     fd_set read_fds_set;
-    int ready;
     int ndfs = -1;
 
     //INITIAL FILE DISPATCH
@@ -90,7 +90,7 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
     //PROCESS FILES
     while (processed_files < file_qty)
     {
-
+        int ready;
         //INITIALIZE FD SET FOR SELECT
         FD_ZERO(&read_fds_set);
         for (size_t i = 0; i < slave_qty; i++)
@@ -154,9 +154,9 @@ void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_sla
 {
 
     //CREATE SLAVES
-    int pid;
     for (int i = 0; i < slave_qty; i++)
     {
+        int pid;
         if (pipe(read_from_slave_fds[i]) == ERROR)
         {
             perror("read from slave pipe()");
@@ -360,13 +360,6 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
             }
         }
     }
-}
-
-void finish_program(shm_info mem_info, void *shm_ptr)
-{
-    mem_info->has_finished = 1;
-    //metemos cerrado de pipes y frees necesarios aca?
-    clear_shared_memory(shm_ptr, mem_info);
 }
 
 int digitCount(int n)
