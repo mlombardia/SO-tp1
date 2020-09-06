@@ -1,9 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "master.h"
 
 int main(int argc, char *argv[])
@@ -43,15 +37,17 @@ int main(int argc, char *argv[])
 
     send_files_to_slaves(results, file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty, shm_ptr, mem_info);
 
-    close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
+    close_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
     close_file(results);
-    
-    finish_program(mem_info, shm_ptr);
+
+    clear_shared_memory(shm_ptr, mem_info);
     return 0;
 }
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
+
+//prepare_param_for_view: prepara y envía la cantidad de archivos por STDOUT para que el proceso vista pueda leerlo.
 void prepare_param_for_view(int argc)
 {
     char size_for_view[5];
@@ -59,7 +55,8 @@ void prepare_param_for_view(int argc)
     write(STDOUT_FILENO, size_for_view, len);
 }
 
-void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
+//close_pipes: cierra los pipes utilizados por los procesos esclavos
+void close_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
     for (int i = 0; i < slave_qty; i++)
     {
@@ -76,6 +73,8 @@ void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_t
     }
 }
 
+//send_files_to_slaves: distribuye los archivos entre los esclavos, y recibe sus resultados,
+//guardandolos en la shared memory y en el archivo results.txt
 void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info)
 {
     int sent_files = 0;
@@ -140,7 +139,7 @@ void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_
                     exit(EXIT_FAILURE);
                 }
 
-                int digits = digitCount(slave_file_count);
+                int digits = digit_count(slave_file_count);
                 write_result_to_shm(shm_ptr, mem_info, result + digits + 1);
                 append_file(results, result + digits + 1);
 
@@ -154,6 +153,7 @@ void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_
     }
 }
 
+//append_file: escribe sobre el archivo apuntado por file, la cadena apuntada por s
 void append_file(FILE *file, char *s)
 {
     if (fprintf(file, "%s\n", s) < 0)
@@ -162,6 +162,7 @@ void append_file(FILE *file, char *s)
         exit(EXIT_FAILURE);
     };
 }
+//open_file: abre el archivo results.txt y si no existe, lo crea
 FILE *open_file()
 {
     FILE *results;
@@ -173,6 +174,7 @@ FILE *open_file()
     }
     return results;
 }
+//close_file: cierra el archivo apuntado por file
 void close_file(FILE *file)
 {
     if (fclose(file) == EOF)
@@ -182,6 +184,7 @@ void close_file(FILE *file)
     }
 }
 
+//create_slaves: crea los procesos esclavos y crea los pipes
 void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
 
@@ -220,6 +223,7 @@ void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_sla
     }
 }
 
+//config_master_pipes: cierra los pipes que el proceso master no utiliza
 void config_master_pipes(int i, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
     if (close(write_to_slave_fds[i][READ_PIPE]) == ERROR)
@@ -234,6 +238,7 @@ void config_master_pipes(int i, int read_from_slave_fds[][2], int write_to_slave
     }
 }
 
+//config_slave_pipes: configura los pipes de los esclavos
 void config_slave_pipes(int i, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
     //CLOSE SLAVE STANDARD INPUT FILE DESCRIPTOR
@@ -271,6 +276,7 @@ void config_slave_pipes(int i, int read_from_slave_fds[][2], int write_to_slave_
     }
 }
 
+//dispatch_file: entrega un archivo al esclavo que le corresponda el write_index
 void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_paths, int *sent_files)
 {
     char *file = file_paths[(*sent_files)++];
@@ -288,18 +294,19 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
 
         if (write(write_to_slave_fds[write_index][1], aux, len + 1) == ERROR)
         {
-            perror("write() to slave");
+            perror("write()");
             exit(EXIT_FAILURE);
         }
     }
 }
 
+//create_shared_memory: crea la memoria compartida y le asigna un tamaño
 void *create_shared_memory()
 {
     void *shm_ptr = NULL;
     int shmid = 0;
     shmid = shm_open(SHM_NAME, O_RDWR | O_CREAT, S_IRWXU);
-    if (shmid < 0)
+    if (shmid == ERROR)
     {
         perror("smh_open/(");
         exit(EXIT_FAILURE);
@@ -308,20 +315,28 @@ void *create_shared_memory()
     if (ftruncate(shmid, SHM_MAX_SIZE) == -1)
     {
         perror("ftruncate()");
-        shm_unlink(SHM_NAME);
+        if (shm_unlink(SHM_NAME) == ERROR)
+        {
+            perror("shm_unlink()");
+        };
         exit(EXIT_FAILURE);
     }
 
     if ((shm_ptr = (void *)mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED)
     {
         perror("mmap()");
+        if (shm_unlink(SHM_NAME) == ERROR)
+        {
+            perror("shm_unlink()");
+        };
         shm_unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
 
     return shm_ptr;
 }
-
+//initialize_shared_memory: inicializa los valores en la estructura compartida
+//shm_info y los semáforos dentro de esta
 shm_info initialize_shared_memory(void *shm_ptr)
 {
     t_shm_info shm_info;
@@ -333,27 +348,48 @@ shm_info initialize_shared_memory(void *shm_ptr)
     if (sem_init(&shm_info.semaphore, 1, 1) < 0)
     {
         perror("sem_init()");
-        unlink(SHM_NAME);
+        if (shm_unlink(SHM_NAME) == ERROR)
+        {
+            perror("shm_unlink()");
+        };
         exit(EXIT_FAILURE);
     }
 
     if (sem_init(&shm_info.empty, 1, 0) < 0)
     {
         perror("sem_init()");
-        unlink(SHM_NAME);
+        if (shm_unlink(SHM_NAME) == ERROR)
+        {
+            perror("shm_unlink()");
+        };
         exit(EXIT_FAILURE);
     }
     memcpy(shm_ptr, &shm_info, sizeof(t_shm_info));
     return shm_ptr;
 }
 
+//clear_shared_memory: libera la memoria compartida y destruye los semáforos
 void clear_shared_memory(void *shm_ptr, shm_info mem_info)
 {
-    sem_destroy(&mem_info->semaphore);
-    munmap(shm_ptr, SHM_MAX_SIZE);
-    //shm_unlink(SHM_NAME);
+    if (sem_destroy(&mem_info->semaphore) == ERROR)
+    {
+        perror("sem_destroy()");
+        exit(EXIT_FAILURE);
+    };
+    if (sem_destroy(&mem_info->semaphore) == ERROR)
+    {
+        perror("sem_destroy()");
+        exit(EXIT_FAILURE);
+    };
+    if (munmap(shm_ptr, SHM_MAX_SIZE) == ERROR)
+    {
+        perror("munmap()");
+        exit(EXIT_FAILURE);
+    }
 }
 
+//write_result_to_shm: escribe el resultado de los esclavos en la memoria compartida
+//teniendo en cuenta que nadie este escribiendo en ese momento
 void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
 {
 
@@ -387,16 +423,13 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
     }
 }
 
-void finish_program(shm_info mem_info, void *shm_ptr)
+//digit_count: cuenta los digitos de un numero
+int digit_count(int n)
 {
-    
-    //mem_info->has_finished = 1;
-    //metemos cerrado de pipes y frees necesarios aca?
-    clear_shared_memory(shm_ptr, mem_info);
-}
-
-int digitCount(int n)
-{
+    if (n == 0)
+    {
+        return 1;
+    }
     int count = 0;
     while (n > 0)
     {

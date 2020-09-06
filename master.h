@@ -22,8 +22,8 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 
 void prepare_param_for_view(int argc);
-int digitCount(int n);
-void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
+int digit_count(int n);
+void close_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void config_master_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void config_slave_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info);
@@ -37,5 +37,5 @@ void *create_shared_memory();
 shm_info initialize_shared_memory(void *shm_ptr);
 void clear_shared_memory(void *shm_ptr, shm_info mem_info);
 void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result);
-void finish_program(shm_info mem_info, void *shm_ptr);
+
 #endif

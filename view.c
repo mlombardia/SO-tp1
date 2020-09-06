@@ -1,9 +1,5 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "view.h"
 
 int main(int argc, char *argv[])
@@ -13,11 +9,11 @@ int main(int argc, char *argv[])
 
     shm_info mem_info = NULL;
 
-    void *ptr_shm = connect_to_shm(&mem_info);
+    void *shm_ptr = connect_to_shm(&mem_info);
 
-    print_results(ptr_shm, mem_info, total_files);
+    print_results(shm_ptr, mem_info, total_files);
 
-    shm_disconnect(ptr_shm, mem_info);
+    shm_disconnect(shm_ptr, mem_info);
 
     return 0;
 }
@@ -58,7 +54,7 @@ void *connect_to_shm(shm_info *mem_info)
 int open_shm(const char *name, int flag, mode_t mode)
 {
     int fd_shm = shm_open(name, flag, mode);
-    if (fd_shm == -1)
+    if (fd_shm == ERROR)
     {
 
         perror("open_shm()");
@@ -114,7 +110,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
                 (mem_info->count)--;
                 if (sem_post(&mem_info->semaphore) < 0)
                 {
-                    perror("Error in wait");
+                    perror("sem_post()");
 
                     exit(EXIT_FAILURE);
                 }
@@ -125,10 +121,14 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
 
 void shm_disconnect(void *ptr_shm, shm_info mem_info)
 {
-    if (munmap(ptr_shm, SHM_MAX_SIZE) == -1)
+    if (munmap(ptr_shm, SHM_MAX_SIZE) == ERROR)
     {
-        perror("munmap");
+        perror("munmap()");
         exit(EXIT_FAILURE);
     }
-    //shm_unlink(SHM_NAME);
+    if (shm_unlink(SHM_NAME) == ERROR)
+    {
+        perror("shm_unlink()");
+        exit(EXIT_FAILURE);
+    };
 }
