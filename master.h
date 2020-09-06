@@ -23,6 +23,8 @@
 #define READ_PIPE 0
 #define WRITE_PIPE 1
 #define max(x, y) ((x) > (y) ? (x) : (y))
+
+void prepare_param_for_view(int argc);
 int digitCount(int n);
 void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void config_master_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);

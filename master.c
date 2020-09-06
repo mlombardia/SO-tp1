@@ -14,9 +14,7 @@ int main(int argc, char *argv[])
     shm_info mem_info = initialize_shared_memory(shm_ptr);
 
     //preparo el param para mandar al stdout o al view dependiendo como se invoque
-    char size_for_view[5];
-    int len = sprintf(size_for_view, "%d\n", argc - 1);
-    write(STDOUT_FILENO, size_for_view, len);
+    prepare_param_for_view(argc);
     sleep(2);
 
     //FILE PATHS POINTER
@@ -27,9 +25,9 @@ int main(int argc, char *argv[])
     printf("File quantity: %d\n", file_qty);
 
     //CALCULATE SLAVE QUANTITY
-
     int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
     printf("Slave quantity: %d\n", slave_qty);
+    
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
     int read_from_slave_fds[slave_qty][2];
@@ -43,17 +41,17 @@ int main(int argc, char *argv[])
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
-    // //esto es solo para testear que estuviese guardando bien en la shm; se puede borrar
-    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info)));
-    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL));
-    // printf("%s", (char *)(shm_ptr + sizeof(t_shm_info) + RESULT_MAX_INFO_TOTAL + RESULT_MAX_INFO_TOTAL));
-    //---------------------------------------------------------------------------------------------------
-
     //finish_program(mem_info, shm_ptr); //si no incluimos lo de pipes despues le cambio 'program' a 'shm'
     return 0;
 }
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
+void prepare_param_for_view(int argc){
+    char size_for_view[5];
+    int len = sprintf(size_for_view, "%d\n", argc - 1);
+    write(STDOUT_FILENO, size_for_view, len);
+}
+
 void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
     for (int i = 0; i < slave_qty; i++)
