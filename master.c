@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
 
     //OPEN or CREATE file for results
     FILE *results = open_file();
-    //
+
+    //SEND VIEW PARAMETERS TO STDOUT AND WAIT 2 SECONDS FOR VIEW TO APPEAR
     prepare_param_for_view(argc);
     sleep(2);
 
@@ -26,23 +27,18 @@ int main(int argc, char *argv[])
 
     //FILES QUANTITY
     int file_qty = argc - 1;
-    printf("File quantity: %d\n", file_qty);
 
     //CALCULATE SLAVE QUANTITY
     int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
-    printf("Slave quantity: %d\n", slave_qty);
 
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
     int read_from_slave_fds[slave_qty][2];
 
-    //CREATE SLAVES AND INITIALIZE PIPES
     create_slaves(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
-    //SEND FILES TO SLAVES
     send_files_to_slaves(results, file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty, shm_ptr, mem_info);
 
-    //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
     return 0;
@@ -75,7 +71,6 @@ void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_t
 
 void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info)
 {
-    //PROCESS FILES
     int sent_files = 0;
     int processed_files = 0;
     fd_set read_fds_set;
@@ -109,7 +104,6 @@ void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_
 
         if (ready == ERROR)
         {
-
             exit(EXIT_FAILURE);
         }
         //CHECK ALL RESULTS
@@ -133,7 +127,7 @@ void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_
                 int slave_file_count = 0;
 
                 //GET THE NUMBER OF FILES PROCCESSED BY THE SLAVE
-                if (sscanf(result, "%d|", &slave_file_count) < 0)
+                if (sscanf(result, "%d@", &slave_file_count) < 0)
                 {
                     perror("sprintf()");
                     exit(EXIT_FAILURE);
@@ -142,15 +136,14 @@ void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_
                 int digits = digitCount(slave_file_count);
                 write_result_to_shm(shm_ptr, mem_info, result + digits + 1);
                 append_file(results, result + digits + 1);
+
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
                     //IF SLAVE FINISHED PROCCESSING INITIAL FILES=>SEND 1 MORE FILE
                     dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
                 }
             }
-        }
-
-        //END PROCESS FILES
+        } //END PROCESS FILES
     }
 }
 
@@ -185,7 +178,6 @@ void close_file(FILE *file)
 void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2])
 {
 
-    //CREATE SLAVES
     for (int i = 0; i < slave_qty; i++)
     {
         int pid;
@@ -286,7 +278,6 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
             perror("sprintf()");
             exit(EXIT_FAILURE);
         }
-        //  printf("%d.ENVIO EL FILE %s AL SLAVE N°%d\n", *sent_files, file, write_index);
 
         if (write(write_to_slave_fds[write_index][1], aux, len + 1) == ERROR)
         {
@@ -341,7 +332,7 @@ shm_info initialize_shared_memory(void *shm_ptr)
         exit(EXIT_FAILURE);
     }
 
-    if (sem_init(&shm_info.full, 1, 0) < 0)
+    if (sem_init(&shm_info.empty, 1, 0) < 0)
     {
         perror("Error initializing semaphore");
         unlink(SHM_NAME);
@@ -369,24 +360,21 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
     }
     else
     {
-        // printf("aca esta escribiendo %s", result);
         strcpy((char *)shm_ptr + mem_info->offset, result);
-        // printf("a ver que tiene la mem %s\n", (char *)(shm_ptr + sizeof(t_shm_info)));
-        // printf("%d", (int)mem_info->offset);
         mem_info->offset += RESULT_MAX_INFO_TOTAL;
         (mem_info->count)++;
-        // printf("count es %d\n", mem_info->count);
+
         if (sem_post(&mem_info->semaphore) < 0)
         {
-            perror("Error in wait");
+            perror("sem_post()");
             clear_shared_memory(shm_ptr, mem_info);
             exit(EXIT_FAILURE);
         }
         if (mem_info->count == 1)
         {
-            if (sem_post(&mem_info->full) < 0)
+            if (sem_post(&mem_info->empty) < 0)
             {
-                perror("Error in wait");
+                perror("sem_post()");
                 clear_shared_memory(shm_ptr, mem_info);
                 exit(EXIT_FAILURE);
             }

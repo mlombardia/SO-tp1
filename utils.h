@@ -20,7 +20,7 @@ typedef struct
     //agrego flag para ver si termino
     size_t offset, has_finished;
     int count;
-    sem_t semaphore, full; // shm = estacionamiento, le pongo el sem en la estructura
+    sem_t semaphore, empty; // shm = estacionamiento, le pongo el sem en la estructura
 } t_shm_info;
 
 typedef t_shm_info *shm_info;

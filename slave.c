@@ -19,7 +19,7 @@ void read_files()
     int file_number = 0;
     while ((count = read(STDIN, file_paths, read_size)) > 0)
     {
-        if (count == -1)
+        if (count == ERROR)
         {
             perror("read()");
             exit(EXIT_FAILURE);
@@ -30,6 +30,7 @@ void read_files()
         int i;
         int j = 0;
 
+        //PARSE
         for (i = 1; i <= count; i++)
         {
             char c = file_paths[i];
@@ -78,7 +79,7 @@ void call_minisat(char *file_path, int *file_number, char *output)
         exit(EXIT_FAILURE);
     }
 
-    if (sprintf(output, "%d|%s:\n", *file_number, file_path) < 0)
+    if (sprintf(output, "%d@%s:\n", *file_number, file_path) < 0)
     {
         perror("sprintf()");
         exit(EXIT_FAILURE);
@@ -86,7 +87,7 @@ void call_minisat(char *file_path, int *file_number, char *output)
     int i = strlen(output);
     do
     {
-       char c = fgetc(result);
+        char c = fgetc(result);
 
         if (feof(result))
         {

@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
 
     int total_files = check_total_files(argc, argv);
-    
+
     shm_info mem_info = NULL;
 
     void *ptr_shm = connect_to_shm(&mem_info);
@@ -16,9 +16,10 @@ int main(int argc, char *argv[])
     shm_disconnect(ptr_shm, mem_info);
 }
 
-//===============================IMPLEMENTATION================================================
+///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
 
-int check_total_files(int argc, char *argv[]){
+int check_total_files(int argc, char *argv[])
+{
     if (argc == 1)
     {
         char response[5];
@@ -28,12 +29,10 @@ int check_total_files(int argc, char *argv[]){
             exit(EXIT_FAILURE);
         };
         return atoi(response);
-        //printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
     }
     else if (argc == 2)
     {
-       return atoi(argv[1]);
-        //printf("Hola soy el view y lo que me llego de parametro es %d\n", total_files);
+        return atoi(argv[1]);
     }
     else
     {
@@ -79,16 +78,14 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
     int current = 1;
     size_t offset = sizeof(t_shm_info);
 
-    //int offset = sizeof(t_shm_info);
     while (current <= total_files)
     {
 
         if (mem_info->count == 0)
         {
-            printf("count = 0\n");
-            if (sem_wait(&mem_info->full) < 0)
+            if (sem_wait(&mem_info->empty) < 0)
             {
-                perror("Error in wait");
+                perror("sem_wait()");
 
                 exit(EXIT_FAILURE);
             }
@@ -97,7 +94,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
         {
             if (sem_wait(&mem_info->semaphore) < 0)
             {
-                perror("Error in wait");
+                perror("sem_wait()");
 
                 exit(EXIT_FAILURE);
             }
@@ -107,7 +104,6 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
                 printf("%d) %s", current, (char *)ptr_shm + offset);
                 putchar('\n');
                 offset += RESULT_MAX_INFO_TOTAL;
-                //offset += RESULT_MAX_INFO_TOTAL;
                 current++;
                 if (sem_post(&mem_info->semaphore) < 0)
                 {
