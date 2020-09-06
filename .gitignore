@@ -2,5 +2,6 @@
 master
 slave
 view
+./test
 ./files
 files/*

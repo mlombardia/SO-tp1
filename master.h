@@ -17,9 +17,6 @@
 
 #define SLAVE_CANT_PORCENTAGE 20
 
-#define FILES_PER_PROCESS 1
-#define ERROR -1
-
 #define READ_PIPE 0
 #define WRITE_PIPE 1
 #define max(x, y) ((x) > (y) ? (x) : (y))
@@ -29,9 +26,12 @@ int digitCount(int n);
 void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void config_master_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
 void config_slave_pipes(int i, int write_to_slave_fds[][2], int read_from_slave_fds[][2]);
-void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info);
+void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info);
 void create_slaves(int slave_qty, int read_from_slave_fds[][2], int write_to_slave_fds[][2]);
 void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_paths, int *sent_files);
+void append_file(FILE *file, char *s);
+FILE *open_file();
+void close_file(FILE *file);
 //SHARED-MEMORY
 void *create_shared_memory();
 shm_info initialize_shared_memory(void *shm_ptr);

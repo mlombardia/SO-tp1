@@ -13,6 +13,7 @@
 #define INITIAL_FILE_DISPATCH_QUANTITY 3
 #define STDOUT 1
 #define STDIN 0
+#define ERROR -1
 typedef struct
 {
     //con el ptr manejo desde el principio, con offset al último elemento agregado voy yendo para adelante

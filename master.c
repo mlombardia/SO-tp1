@@ -15,7 +15,9 @@ int main(int argc, char *argv[])
     void *shm_ptr = create_shared_memory();
     shm_info mem_info = initialize_shared_memory(shm_ptr);
 
-    //preparo el param para mandar al stdout o al view dependiendo como se invoque
+    //OPEN or CREATE file for results
+    FILE *results = open_file();
+    //
     prepare_param_for_view(argc);
     sleep(2);
 
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
     //CALCULATE SLAVE QUANTITY
     int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
     printf("Slave quantity: %d\n", slave_qty);
-    
+
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
     int read_from_slave_fds[slave_qty][2];
@@ -38,7 +40,7 @@ int main(int argc, char *argv[])
     create_slaves(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
     //SEND FILES TO SLAVES
-    send_files_to_slaves(file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty, shm_ptr, mem_info);
+    send_files_to_slaves(results, file_paths, read_from_slave_fds, write_to_slave_fds, slave_qty, file_qty, shm_ptr, mem_info);
 
     //CLOSE PIPES
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
@@ -47,7 +49,8 @@ int main(int argc, char *argv[])
 }
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
-void prepare_param_for_view(int argc){
+void prepare_param_for_view(int argc)
+{
     char size_for_view[5];
     int len = sprintf(size_for_view, "%d\n", argc - 1);
     write(STDOUT_FILENO, size_for_view, len);
@@ -70,7 +73,7 @@ void close_master_pipes(int slave_qty, int read_from_slave_fds[][2], int write_t
     }
 }
 
-void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info)
+void send_files_to_slaves(FILE *results, char **file_paths, int read_from_slave_fds[][2], int write_to_slave_fds[][2], int slave_qty, int file_qty, void *shm_ptr, shm_info mem_info)
 {
     //PROCESS FILES
     int sent_files = 0;
@@ -116,12 +119,10 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
             int fd = read_from_slave_fds[i][0];
             if (FD_ISSET(fd, &read_fds_set))
             {
-
-                processed_files++;
                 //RESULT FROM SLAVE i IS READY TO BE READ
+                processed_files++;
                 char result[RESULT_MAX_SIZE];
 
-                //READ RESULT
                 int count;
                 if ((count = read(fd, result, RESULT_MAX_SIZE)) == ERROR)
                 {
@@ -130,23 +131,54 @@ void send_files_to_slaves(char **file_paths, int read_from_slave_fds[][2], int w
                 }
                 result[count] = '\0';
                 int slave_file_count = 0;
+
+                //GET THE NUMBER OF FILES PROCCESSED BY THE SLAVE
                 if (sscanf(result, "%d|", &slave_file_count) < 0)
                 {
                     perror("sprintf()");
                     exit(EXIT_FAILURE);
                 }
-                int digits = digitCount(slave_file_count);
-                //printf("%d)%s\n", processed_files, result);
-                write_result_to_shm(shm_ptr, mem_info, result + digits + 1);
 
+                int digits = digitCount(slave_file_count);
+                write_result_to_shm(shm_ptr, mem_info, result + digits + 1);
+                append_file(results, result + digits + 1);
                 if (sent_files < file_qty && slave_file_count >= INITIAL_FILE_DISPATCH_QUANTITY)
                 {
+                    //IF SLAVE FINISHED PROCCESSING INITIAL FILES=>SEND 1 MORE FILE
                     dispatch_file(write_to_slave_fds, i, file_paths, &sent_files);
                 }
             }
         }
 
         //END PROCESS FILES
+    }
+}
+
+void append_file(FILE *file, char *s)
+{
+    if (fprintf(file, "%s\n", s) < 0)
+    {
+        perror("fprintf()");
+        exit(EXIT_FAILURE);
+    };
+}
+FILE *open_file()
+{
+    FILE *results;
+
+    if ((results = fopen("results.txt", "a")) == NULL)
+    {
+        perror("fopen()");
+        exit(EXIT_FAILURE);
+    }
+    return results;
+}
+void close_file(FILE *file)
+{
+    if (fclose(file) == EOF)
+    {
+        perror("fclose()");
+        exit(EXIT_FAILURE);
     }
 }
 
