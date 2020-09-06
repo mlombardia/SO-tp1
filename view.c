@@ -3,29 +3,8 @@
 int main(int argc, char *argv[])
 {
 
-    int total_files;
-    if (argc == 1)
-    {
-        char response[5];
-        if (read(STDIN, response, 5) < 0)
-        {
-            perror("read()");
-            exit(EXIT_FAILURE);
-        };
-        total_files = atoi(response);
-        //printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
-    }
-    else if (argc == 2)
-    {
-        total_files = atoi(argv[1]);
-        //printf("Hola soy el view y lo que me llego de parametro es %d\n", total_files);
-    }
-    else
-    {
-        fprintf(stderr, "Usage: %s <file_quantity>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
+    int total_files = check_total_files(argc, argv);
+    
     shm_info mem_info = NULL;
 
     void *ptr_shm = connect_to_shm(&mem_info);
@@ -36,6 +15,30 @@ int main(int argc, char *argv[])
 }
 
 //===============================IMPLEMENTATION================================================
+
+int check_total_files(int argc, char *argv[]){
+    if (argc == 1)
+    {
+        char response[5];
+        if (read(STDIN, response, 5) < 0)
+        {
+            perror("read()");
+            exit(EXIT_FAILURE);
+        };
+        return atoi(response);
+        //printf("Hola soy el view y lo que me pasaron por master es %d\n", total_files);
+    }
+    else if (argc == 2)
+    {
+       return atoi(argv[1]);
+        //printf("Hola soy el view y lo que me llego de parametro es %d\n", total_files);
+    }
+    else
+    {
+        fprintf(stderr, "Usage: %s <file_quantity>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+}
 
 void *connect_to_shm(shm_info *mem_info)
 {
