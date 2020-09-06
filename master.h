@@ -37,4 +37,5 @@ void *create_shared_memory();
 shm_info initialize_shared_memory(void *shm_ptr);
 void clear_shared_memory(void *shm_ptr, shm_info mem_info);
 void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result);
+void finish_program(shm_info mem_info, void *shm_ptr);
 #endif
