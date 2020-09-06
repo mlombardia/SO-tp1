@@ -1,270 +1,312 @@
-./test/CBS_k3_n100_m403_b10_16.cnf:
+test/CBS_k3_n100_m403_b10_10.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002973 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_11.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001887 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_13.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002253 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_16.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001708 s
+SATISFIABLE
+
+of clauses:             403
+CPU time              : 0.001257 s
+SATISFIABLE
+
+ of clauses:             403
+CPU time              : 0.001828 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_10.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.003024 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_11.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001167 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_13.cnf:
 Number of variables:           100
 Number of clauses:             403
 CPU time              : 0 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_10.cnf:
+test/CBS_k3_n100_m403_b10_16.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.002856 s
+CPU time              : 0.001641 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_13.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.007358 s
+        403
+CPU time              : 0.001743 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_11.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001668 s
+ of clauses:             403
+CPU time              : 0.001869 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_14.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.000887 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_17.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.002945 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_12.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.00241 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_15.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001615 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_18.cnf:
+test/CBS_k3_n100_m403_b10_19.cnf:
 Number of variables:           100
 Number of clauses:             403
 CPU time              : 0 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_19.cnf:
+test/CBS_k3_n100_m403_b10_20.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.00165 s
+CPU time              : 0.001859 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_20.cnf:
+test/CBS_k3_n100_m403_b10_21.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001795 s
+CPU time              : 0.001663 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_21.cnf:
+test/CBS_k3_n100_m403_b10_22.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.000768 s
+CPU time              : 0.001342 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_22.cnf:
+test/CBS_k3_n100_m403_b10_23.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.00191 s
+CPU time              : 0.002924 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_24.cnf:
+test/CBS_k3_n100_m403_b10_24.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.00228 s
+CPU time              : 0.002404 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_23.cnf:
+test/CBS_k3_n100_m403_b10_25.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001353 s
+CPU time              : 0.001323 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_25.cnf:
+test/CBS_k3_n100_m403_b10_26.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.000789 s
+CPU time              : 0.001526 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_27.cnf:
+test/CBS_k3_n100_m403_b10_27.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001549 s
+CPU time              : 0.001314 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_26.cnf:
+test/CBS_k3_n100_m403_b10_28.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.000749 s
+CPU time              : 0.002077 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_28.cnf:
+test/CBS_k3_n100_m403_b10_29.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.000789 s
+CPU time              : 0.00169 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_29.cnf:
+test/CBS_k3_n100_m403_b10_30.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.00188 s
+CPU time              : 0.002025 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_30.cnf:
+test/CBS_k3_n100_m403_b10_31.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001978 s
+CPU time              : 0.001327 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_31.cnf:
+test/CBS_k3_n100_m403_b10_32.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001585 s
+CPU time              : 0.001582 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_32.cnf:
+test/CBS_k3_n100_m403_b10_33.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001784 s
+CPU time              : 0.001972 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_33.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.002197 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_35.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001725 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_34.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001367 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_36.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001982 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_37.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001786 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_38.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001942 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_39.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.000815 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_40.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.002287 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_41.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001835 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_42.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.000938 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_44.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001667 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_43.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001747 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_45.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.00254 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_46.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.001601 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_47.cnf:
-Number of variables:           100
-Number of clauses:             403
-CPU time              : 0.000845 s
-SATISFIABLE
-
-./test/CBS_k3_n100_m403_b10_48.cnf:
+test/CBS_k3_n100_m403_b10_34.cnf:
 Number of variables:           100
 Number of clauses:             403
 CPU time              : 0 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_50.cnf:
+test/CBS_k3_n100_m403_b10_35.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001787 s
+CPU time              : 0 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_49.cnf:
+test/CBS_k3_n100_m403_b10_36.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.000769 s
+CPU time              : 0.001904 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_6.cnf:
+test/CBS_k3_n100_m403_b10_37.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.002054 s
+CPU time              : 0.001457 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_7.cnf:
+test/CBS_k3_n100_m403_b10_38.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001847 s
+CPU time              : 0.001824 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_8.cnf:
+test/CBS_k3_n100_m403_b10_39.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001537 s
+CPU time              : 0.001442 s
 SATISFIABLE
 
-./test/CBS_k3_n100_m403_b10_9.cnf:
+test/CBS_k3_n100_m403_b10_40.cnf:
 Number of variables:           100
 Number of clauses:             403
-CPU time              : 0.001822 s
+CPU time              : 0.001908 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_41.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001663 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_42.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001864 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_43.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_44.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001361 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_45.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002515 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_46.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001451 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_47.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001541 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_48.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002363 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_49.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002216 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_50.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001635 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_6.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001958 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_7.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001636 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_8.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001347 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_9.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.00171 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_10.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.002991 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_11.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.001926 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_13.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0 s
+SATISFIABLE
+
+test/CBS_k3_n100_m403_b10_16.cnf:
+Number of variables:           100
+Number of clauses:             403
+CPU time              : 0.00182 s
+SATISFIABLE
+
+ses:             403
+CPU time              : 0 s
+SATISFIABLE
+
+of clauses:             403
+CPU time              : 0.001317 s
 SATISFIABLE
 

@@ -1,5 +1,9 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "master.h"
 
 int main(int argc, char *argv[])
@@ -41,6 +45,9 @@ int main(int argc, char *argv[])
 
     close_master_pipes(slave_qty, read_from_slave_fds, write_to_slave_fds);
 
+    close_file(results);
+    
+    finish_program(mem_info, shm_ptr);
     return 0;
 }
 
@@ -344,7 +351,7 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
 {
     sem_destroy(&mem_info->semaphore);
     munmap(shm_ptr, SHM_MAX_SIZE);
-    shm_unlink(SHM_NAME);
+    //shm_unlink(SHM_NAME);
 }
 
 void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
@@ -378,6 +385,14 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
             }
         }
     }
+}
+
+void finish_program(shm_info mem_info, void *shm_ptr)
+{
+    
+    //mem_info->has_finished = 1;
+    //metemos cerrado de pipes y frees necesarios aca?
+    clear_shared_memory(shm_ptr, mem_info);
 }
 
 int digitCount(int n)

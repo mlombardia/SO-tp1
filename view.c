@@ -1,5 +1,9 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "view.h"
 
 int main(int argc, char *argv[])
@@ -14,6 +18,8 @@ int main(int argc, char *argv[])
     print_results(ptr_shm, mem_info, total_files);
 
     shm_disconnect(ptr_shm, mem_info);
+
+    return 0;
 }
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
@@ -124,4 +130,5 @@ void shm_disconnect(void *ptr_shm, shm_info mem_info)
         perror("munmap");
         exit(EXIT_FAILURE);
     }
+    //shm_unlink(SHM_NAME);
 }
