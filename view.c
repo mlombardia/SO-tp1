@@ -105,6 +105,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
                 putchar('\n');
                 offset += RESULT_MAX_INFO_TOTAL;
                 current++;
+                (mem_info->count)--;
                 if (sem_post(&mem_info->semaphore) < 0)
                 {
                     perror("Error in wait");

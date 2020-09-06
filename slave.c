@@ -19,7 +19,7 @@ void read_files()
     int file_number = 0;
     while ((count = read(STDIN, file_paths, read_size)) > 0)
     {
-        if (count == ERROR)
+        if (count == ERROR || count > FILE_PATH_MAX_SIZE)
         {
             perror("read()");
             exit(EXIT_FAILURE);
