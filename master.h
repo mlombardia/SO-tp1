@@ -15,7 +15,7 @@
 #include <sys/mman.h>
 #include "utils.h"
 
-#define SLAVE_CANT_PORCENTAGE 20
+#define SLAVE_QTY_PORCENTAGE 20
 
 #define READ_PIPE 0
 #define WRITE_PIPE 1

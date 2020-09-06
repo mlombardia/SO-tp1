@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     int file_qty = argc - 1;
 
     //CALCULATE SLAVE QUANTITY
-    int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_CANT_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
+    int slave_qty = (int)ceil(ceil((double)(file_qty * SLAVE_QTY_PORCENTAGE) / 100) / INITIAL_FILE_DISPATCH_QUANTITY);
 
     //CREATE READ AND WRITE PIPES
     int write_to_slave_fds[slave_qty][2];
@@ -286,30 +286,28 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
         }
     }
 }
-//parte shm - cambiar en base a lo hablado
+
 void *create_shared_memory()
 {
     void *shm_ptr = NULL;
-    //creo la memoria compartida
     int shmid = 0;
     shmid = shm_open(SHM_NAME, O_RDWR | O_CREAT, S_IRWXU);
     if (shmid < 0)
     {
-        perror("smh_open");
+        perror("smh_open/(");
         exit(EXIT_FAILURE);
     }
-    //chequeo si estamos ok con el tema del tamaño de la memoria
+
     if (ftruncate(shmid, SHM_MAX_SIZE) == -1)
     {
-        perror("can't truncate");
+        perror("ftruncate()");
         shm_unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
 
-    //chequeo si se puede conectar
     if ((shm_ptr = (void *)mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED)
     {
-        perror("can't attach memory");
+        perror("mmap()");
         shm_unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
@@ -327,14 +325,14 @@ shm_info initialize_shared_memory(void *shm_ptr)
 
     if (sem_init(&shm_info.semaphore, 1, 1) < 0)
     {
-        perror("Error initializing semaphore");
+        perror("sem_init()");
         unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
 
     if (sem_init(&shm_info.empty, 1, 0) < 0)
     {
-        perror("Error initializing semaphore");
+        perror("sem_init()");
         unlink(SHM_NAME);
         exit(EXIT_FAILURE);
     }
@@ -354,7 +352,7 @@ void write_result_to_shm(void *shm_ptr, shm_info mem_info, char *result)
 
     if (sem_wait(&mem_info->semaphore) < 0)
     {
-        perror("Error in wait");
+        perror("sem_wait()");
         clear_shared_memory(shm_ptr, mem_info);
         exit(EXIT_FAILURE);
     }
