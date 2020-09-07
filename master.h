@@ -1,18 +1,9 @@
 #ifndef _MASTER_H_
 #define _MASTER_H_
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <time.h>
-#include <sys/shm.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/mman.h>
 #include "utils.h"
 
 #define SLAVE_QTY_PORCENTAGE 20

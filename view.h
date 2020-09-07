@@ -1,13 +1,6 @@
 #ifndef _VIEW_H_
 #define _VIEW_H_
-#include <stdio.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
 #include "utils.h"
-#include <fcntl.h>
 
 int check_total_files(int argc, char *argv[]);
 void *connect_to_shm(shm_info *mem_info);

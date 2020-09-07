@@ -4,9 +4,13 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 #include <semaphore.h>
 #include <errno.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 #define SHM_NAME "/shm"
 #define RESULT_MAX_SIZE 384
