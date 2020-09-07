@@ -1,6 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "master.h"
+#include "utils.h"
 
 int main(int argc, char *argv[])
 {
@@ -305,7 +306,6 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
 //create_shared_memory: crea la instancia de memoria compartida y le asigna un tamaño
 void *create_shared_memory()
 {
-    void *shm_ptr = NULL;
     int shmid = 0;
     shmid = shm_open(SHM_NAME, O_RDWR | O_CREAT, S_IRWXU);
     if (shmid == ERROR)
@@ -324,16 +324,7 @@ void *create_shared_memory()
         exit(EXIT_FAILURE);
     }
 
-    if ((shm_ptr = (void *)mmap(NULL, SHM_MAX_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0)) == MAP_FAILED)
-    {
-        perror("mmap()");
-        if (shm_unlink(SHM_NAME) == ERROR)
-        {
-            perror("shm_unlink()");
-        };
-        shm_unlink(SHM_NAME);
-        exit(EXIT_FAILURE);
-    }
+    void *shm_ptr = mapping_shm(NULL, PROT_READ | PROT_WRITE, MAP_SHARED, shmid, 0);
 
     return shm_ptr;
 }

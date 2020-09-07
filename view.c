@@ -70,18 +70,6 @@ int open_shm(const char *name, int flag, mode_t mode)
     return fd_shm;
 }
 
-//mapping_shm: intenta mapear en memoria el espacio
-void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
-{
-    void *ptr_shm = mmap(addr, SHM_MAX_SIZE, prot, flags, fd, offset);
-    if (ptr_shm == MAP_FAILED)
-    {
-        perror("mapping_shm()");
-        exit(EXIT_FAILURE);
-    }
-    return ptr_shm;
-}
-
 //print_results: imprime los resultados desde la memoria
 void print_results(void *ptr_shm, shm_info mem_info, int total_files)
 {

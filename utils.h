@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <semaphore.h>
+#include <errno.h>
+#include <stdio.h>
 
 #define SHM_NAME "/shm"
 #define RESULT_MAX_SIZE 384
@@ -26,4 +29,6 @@ typedef struct
 
 typedef t_shm_info *shm_info;
 
+
+void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset);
 #endif
