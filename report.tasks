@@ -1,9 +1,7 @@
 www.viva64.com/en/w	1	err	Help: The documentation for all analyzer warnings is available here: https://www.viva64.com/en/w/.
-/home/maxi/Documents/Projects/SO-tp1/master.c	133	warn	V557 Array overrun is possible. The value of 'count' index could reach 384.
-/home/maxi/Documents/Projects/SO-tp1/master.c	210	warn	V764 Possible incorrect order of arguments passed to 'config_slave_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
-/home/maxi/Documents/Projects/SO-tp1/master.c	219	warn	V764 Possible incorrect order of arguments passed to 'config_master_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
-/home/maxi/Documents/Projects/SO-tp1/master.c	338	note	V631 Consider inspecting the 'unlink' function call. Defining an absolute path to the file or directory is considered a poor style.
-/home/maxi/Documents/Projects/SO-tp1/master.c	345	note	V631 Consider inspecting the 'unlink' function call. Defining an absolute path to the file or directory is considered a poor style.
-/home/maxi/Documents/Projects/SO-tp1/slave.c	26	err	V547 Expression 'count == - 1' is always false.
-/home/maxi/Documents/Projects/SO-tp1/slave.c	31	warn	V557 Array overrun is possible. The value of 'count' index could reach 384.
-/home/maxi/Documents/Projects/SO-tp1/slave.c	40	warn	V557 Array overrun is possible. The value of 'i' index could reach 384.
+/home/maxi/Documents/Projects/SO-tp1/master.c	134	warn	V557 Array overrun is possible. The value of 'count' index could reach 384.
+/home/maxi/Documents/Projects/SO-tp1/master.c	215	warn	V764 Possible incorrect order of arguments passed to 'config_slave_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
+/home/maxi/Documents/Projects/SO-tp1/master.c	224	warn	V764 Possible incorrect order of arguments passed to 'config_master_pipes' function: 'read_from_slave_fds' and 'write_to_slave_fds'.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	24	err	V547 Expression 'count == - 1' is always false.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	29	warn	V557 Array overrun is possible. The value of 'count' index could reach 640.
+/home/maxi/Documents/Projects/SO-tp1/slave.c	38	warn	V557 Array overrun is possible. The value of 'i' index could reach 640.

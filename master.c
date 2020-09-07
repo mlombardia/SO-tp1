@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "master.h"
 
 int main(int argc, char *argv[])
@@ -300,7 +302,7 @@ void dispatch_file(int write_to_slave_fds[][2], int write_index, char **file_pat
     }
 }
 
-//create_shared_memory: crea la memoria compartida y le asigna un tamaño
+//create_shared_memory: crea la instancia de memoria compartida y le asigna un tamaño
 void *create_shared_memory()
 {
     void *shm_ptr = NULL;
@@ -368,7 +370,7 @@ shm_info initialize_shared_memory(void *shm_ptr)
     return shm_ptr;
 }
 
-//clear_shared_memory: libera la memoria compartida y destruye los semáforos
+//clear_shared_memory: desconecta la memoria compartida y destruye los semáforos
 void clear_shared_memory(void *shm_ptr, shm_info mem_info)
 {
     if (sem_destroy(&mem_info->semaphore) == ERROR)
@@ -376,7 +378,7 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
         perror("sem_destroy()");
         exit(EXIT_FAILURE);
     };
-    if (sem_destroy(&mem_info->semaphore) == ERROR)
+    if (sem_destroy(&mem_info->empty) == ERROR)
     {
         perror("sem_destroy()");
         exit(EXIT_FAILURE);

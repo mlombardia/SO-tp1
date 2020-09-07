@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "slave.h"
 
@@ -10,6 +12,7 @@ int main(int argc, char *argv[])
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
 
+//read_files: lee los path de los archivos para resolverlos
 void read_files()
 {
     int read_size = INITIAL_FILE_DISPATCH_QUANTITY * FILE_PATH_MAX_SIZE;
@@ -51,6 +54,7 @@ void read_files()
     }
 }
 
+//process_file: procesa los archivos
 void process_file(char *file_path, int *file_number)
 {
 
@@ -59,6 +63,7 @@ void process_file(char *file_path, int *file_number)
     send_result(output);
 }
 
+//call_minisat: resuelve el archivo con minisat
 void call_minisat(char *file_path, int *file_number, char *output)
 {
     int file_len = strlen(file_path);
@@ -97,6 +102,7 @@ void call_minisat(char *file_path, int *file_number, char *output)
     } while (i < output_size);
 }
 
+//send_result: envia el resultado a master
 void send_result(char *output)
 {
     if (output == NULL)

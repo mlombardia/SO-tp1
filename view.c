@@ -1,5 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "view.h"
 
 int main(int argc, char *argv[])
@@ -20,6 +22,8 @@ int main(int argc, char *argv[])
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
 
+//check_total_files: chequea la cantidad de archivos 
+//dependiendo el modo en el que se invoco (con o sin |)
 int check_total_files(int argc, char *argv[])
 {
     if (argc == 1)
@@ -43,6 +47,7 @@ int check_total_files(int argc, char *argv[])
     }
 }
 
+//connect_to_shm: conexion a la memoria
 void *connect_to_shm(shm_info *mem_info)
 {
     int fd_shm = open_shm(SHM_NAME, O_RDWR, S_IRWXU);
@@ -51,6 +56,7 @@ void *connect_to_shm(shm_info *mem_info)
     return ptr_shm;
 }
 
+//open_shm: intenta abrir la instancia de shared memory
 int open_shm(const char *name, int flag, mode_t mode)
 {
     int fd_shm = shm_open(name, flag, mode);
@@ -64,10 +70,11 @@ int open_shm(const char *name, int flag, mode_t mode)
     return fd_shm;
 }
 
+//mapping_shm: intenta mapear en memoria el espacio
 void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
 {
     void *ptr_shm = mmap(addr, SHM_MAX_SIZE, prot, flags, fd, offset);
-    if (ptr_shm == (void *)-1)
+    if (ptr_shm == MAP_FAILED)
     {
         perror("mapping_shm()");
         exit(EXIT_FAILURE);
@@ -75,6 +82,7 @@ void *mapping_shm(void *addr, int prot, int flags, int fd, off_t offset)
     return ptr_shm;
 }
 
+//print_results: imprime los resultados desde la memoria
 void print_results(void *ptr_shm, shm_info mem_info, int total_files)
 {
     int current = 1;
@@ -119,6 +127,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
     }
 }
 
+//shm_discconect: desconecta y libera la instancia de la memoria
 void shm_disconnect(void *ptr_shm, shm_info mem_info)
 {
     if (munmap(ptr_shm, SHM_MAX_SIZE) == ERROR)
