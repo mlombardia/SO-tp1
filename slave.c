@@ -19,6 +19,7 @@ void read_files()
     char file_paths[read_size];
     int count;
     int file_number = 0;
+    pid_t pid = getpid();
     while ((count = read(STDIN, file_paths, read_size)) > 0)
     {
         if (count == ERROR)
@@ -42,7 +43,7 @@ void read_files()
                 file_path[j] = '\0';
                 file_number++;
 
-                process_file(file_path, &file_number);
+                process_file(file_path, &file_number, pid);
 
                 j = 0;
             }
@@ -55,16 +56,16 @@ void read_files()
 }
 
 //process_file: procesa los archivos
-void process_file(char *file_path, int *file_number)
+void process_file(char *file_path, int *file_number, pid_t pid)
 {
 
     char output[RESULT_MAX_SIZE + FILE_PATH_MAX_SIZE + 4];
-    call_minisat(file_path, file_number, output);
+    call_minisat(file_path, file_number, output, pid);
     send_result(output);
 }
 
 //call_minisat: resuelve el archivo con minisat
-void call_minisat(char *file_path, int *file_number, char *output)
+void call_minisat(char *file_path, int *file_number, char *output, pid_t pid)
 {
     int file_len = strlen(file_path);
     char command[file_len + 85];
@@ -83,7 +84,7 @@ void call_minisat(char *file_path, int *file_number, char *output)
         exit(EXIT_FAILURE);
     }
 
-    if (sprintf(output, "%d@%s:\n", *file_number, file_path) < 0)
+    if (sprintf(output, "%d@File: %s:\nSlave PID: %d\n", *file_number, file_path, pid) < 0)
     {
         perror("sprintf()");
         exit(EXIT_FAILURE);

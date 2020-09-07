@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
 ///////////////////////////////////////FUNCTIONS IMPLEMENTATIONS/////////////////////////////////////////////////////////////
 
-//check_total_files: chequea la cantidad de archivos 
+//check_total_files: chequea la cantidad de archivos
 //dependiendo el modo en el que se invoco (con o sin |)
 int check_total_files(int argc, char *argv[])
 {
@@ -99,7 +99,7 @@ void print_results(void *ptr_shm, shm_info mem_info, int total_files)
             else
             {
 
-                printf("%d) %s", current, (char *)ptr_shm + offset);
+                printf("%d)%s", current, (char *)ptr_shm + offset);
                 putchar('\n');
                 offset += RESULT_MAX_INFO_TOTAL;
                 current++;
