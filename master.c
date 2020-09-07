@@ -376,7 +376,7 @@ void clear_shared_memory(void *shm_ptr, shm_info mem_info)
         perror("sem_destroy()");
         exit(EXIT_FAILURE);
     };
-    if (sem_destroy(&mem_info->semaphore) == ERROR)
+    if (sem_destroy(&mem_info->empty) == ERROR)
     {
         perror("sem_destroy()");
         exit(EXIT_FAILURE);
